@@ -1,4 +1,5 @@
-## Feature http-client documentation
+# Championships Project
 
-- [Micronaut Micronaut HTTP Client documentation](https://docs.micronaut.io/latest/guide/index.html#httpClient)
+This project uses Kotlin with Micronaut, a modern JVM-based Framework.
 
+If you want to learn more about Micronaut, please visit its website: https://micronaut.io/.
