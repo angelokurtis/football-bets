@@ -1,4 +1,13 @@
-FROM openjdk:14-alpine
-COPY build/libs/championships-*-all.jar championships.jar
+FROM oracle/graalvm-ce:20.1.0-java8 as graalvm
+RUN gu install native-image
+
+COPY . /home/app/championships
+WORKDIR /home/app/championships
+
+RUN native-image --no-server -cp build/libs/championships-*-all.jar
+
+FROM frolvlad/alpine-glibc
+RUN apk update && apk add libstdc++
 EXPOSE 8080
-CMD ["java", "-Dcom.sun.management.jmxremote", "-Xmx128m", "-jar", "championships.jar"]
+COPY --from=graalvm /home/app/championships/championships /app/championships
+ENTRYPOINT ["/app/championships"]
