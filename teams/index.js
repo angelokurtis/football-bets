@@ -1,6 +1,7 @@
 const express = require('express');
 const path = require('path');
 const app = express();
+const {createLightship} = require('lightship')
 
 const PORT = 3000;
 
@@ -21,6 +22,14 @@ app.use((err, req, res, next) => {
     res.json({error: {message: err.message}});
 });
 
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
     console.log(`Express Server started on Port ${app.get('port')}`);
 });
+
+const lightship = createLightship();
+
+lightship.registerShutdownHandler(() => {
+    server.close();
+});
+
+lightship.signalReady();
