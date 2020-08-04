@@ -1,3 +1,5 @@
 micronaut:
   application:
     name: championships
+championships:
+  directory: ${DATA_DIR:/usr/src/data}

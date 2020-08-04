@@ -12,12 +12,12 @@ import io.micronaut.http.hateoas.Link
 import java.io.File
 
 @Controller("/championships")
-class ChampionshipController(mapper: ObjectMapper) {
+class ChampionshipController(mapper: ObjectMapper, config: ChampionshipConfiguration) {
 
     private val resources: Resources
 
     init {
-        val content = File("/home/kurtis/dev/projects/labs/football-bets-api/responses/championships.json").readText()
+        val content = File("${config.directory}/championships.json").readText()
         this.resources = mapper.readValue(content, Resources::class.java)
     }
 
