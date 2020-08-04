@@ -1,12 +1,12 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: championships
+  name: teams
   labels:
-    app: championships
+    app: teams
 spec:
   selector:
-    app: championships
+    app: teams
   ports:
     - port: 8080
   type: NodePort

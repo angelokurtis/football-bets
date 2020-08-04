@@ -315,4 +315,3 @@ data:
 kind: ConfigMap
 metadata:
   name: championships
-  namespace: football-bets
