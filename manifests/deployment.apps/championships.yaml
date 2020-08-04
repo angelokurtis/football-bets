@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: championships
+  labels:
+    app: championships
+    version: v1
+spec:
+  replicas: 1
+  template:
+    metadata:
+      name: championships
+      labels:
+        app: championships
+        version: v1
+    spec:
+      containers:
+        - name: championships
+          image: kurtis/championships:v1
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 1
+            periodSeconds: 5
+          volumeMounts:
+            - name: championships
+              mountPath: /usr/src/data
+      volumes:
+        - name: championships
+          configMap:
+            name: championships
+      restartPolicy: Always
+  selector:
+    matchLabels:
+      app: championships
