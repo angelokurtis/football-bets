@@ -11,7 +11,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
-@Path("/api/matches")
+@Path("/matches")
 public class MatchController {
 
     private final MatchService service;
