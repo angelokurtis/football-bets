@@ -13,6 +13,6 @@ class MatchConfigurationTest {
     @DisplayName("Load matches from JSON")
     void loadMatchesFromJson() throws IOException {
         final var jsonb = JsonbBuilder.create();
-        new MatchConfiguration().matchesFromJson(jsonb);
+        new MatchConfiguration("/home/kurtis/dev/projects/labs/football-bets-api/responses").matchesFromJson(jsonb);
     }
 }
