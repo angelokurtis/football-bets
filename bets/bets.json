@@ -1,0 +1,66 @@
+{
+  "_links": {
+    "match": {
+      "href": "/matches/93"
+    }
+  },
+  "championship": {
+    "_links": {
+      "championship": {
+        "href": "/championships/924"
+      },
+      "self": {
+        "href": "/championships/924"
+      },
+      "teams": {
+        "href": "/championships/924/teams"
+      }
+    },
+    "name": "Paulista - 2ª Divisão",
+    "year": 2019
+  },
+  "date": "2019-04-07T10:00:00",
+  "score_away": {
+    "team": {
+      "_links": {
+        "championships": {
+          "href": "/teams/1/championships"
+        },
+        "matches": {
+          "href": "/teams/1/matches"
+        },
+        "self": {
+          "href": "/teams/1"
+        },
+        "team": {
+          "href": "/teams/1"
+        }
+      },
+      "name": "Palmeiras"
+    },
+    "bet": 5,
+    "goals": 1
+  },
+  "score_home": {
+    "team": {
+      "_links": {
+        "championships": {
+          "href": "/teams/1/championships"
+        },
+        "matches": {
+          "href": "/teams/1/matches"
+        },
+        "self": {
+          "href": "/teams/1"
+        },
+        "team": {
+          "href": "/teams/1"
+        }
+      },
+      "name": "Palmeiras"
+    },
+    "bet": 1,
+    "goals": 1
+  },
+  "status": "Encerrado"
+}
