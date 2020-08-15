@@ -45,5 +45,6 @@ type Team struct {
 			Href string `json:"href"`
 		} `json:"team"`
 	} `json:"_links"`
-	Name string `json:"name"`
+	ImageURL string `json:"image_url,omitempty"`
+	Name     string `json:"name"`
 }
