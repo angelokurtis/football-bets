@@ -1,6 +1,7 @@
 package main
 
 import (
+	healthCheck "github.com/RaMin0/gin-health-check"
 	"github.com/angelokurtis/football-bets/bets/pkg/bets"
 	"github.com/angelokurtis/football-bets/bets/pkg/championships"
 	"github.com/angelokurtis/football-bets/bets/pkg/matches"
@@ -13,6 +14,7 @@ func main() {
 	gin.SetMode(gin.ReleaseMode)
 	r := gin.New()
 	r.Use(gin.Recovery())
+	r.Use(healthCheck.Default())
 	r.POST("/bets", func(c *gin.Context) {
 		m, err := matches.GetRandomly()
 		if err != nil || m == nil {
