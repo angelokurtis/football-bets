@@ -1,6 +1,6 @@
 package br.dev.kurtis.domain.model;
 
-public class Links {
+public class MatchesLinks {
 
     private Link self;
 

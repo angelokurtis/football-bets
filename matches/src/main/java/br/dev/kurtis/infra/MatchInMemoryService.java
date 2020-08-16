@@ -1,10 +1,9 @@
 package br.dev.kurtis.infra;
 
-import br.dev.kurtis.domain.model.Link;
-import br.dev.kurtis.domain.model.Match;
-import br.dev.kurtis.domain.model.MatchRelationships;
-import br.dev.kurtis.domain.model.Matches;
+import br.dev.kurtis.domain.model.*;
+import br.dev.kurtis.domain.service.ChampionshipClient;
 import br.dev.kurtis.domain.service.MatchService;
+import org.eclipse.microprofile.rest.client.inject.RestClient;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -15,11 +14,15 @@ public class MatchInMemoryService implements MatchService {
 
     private final Matches matches;
     private final List<MatchRelationships> relationships;
+    private final ChampionshipClient championshipClient;
 
     @Inject
-    public MatchInMemoryService(Matches matches, List<MatchRelationships> relationships) {
+    public MatchInMemoryService(Matches matches,
+                                List<MatchRelationships> relationships,
+                                @RestClient ChampionshipClient championshipClient) {
         this.matches = matches;
         this.relationships = relationships;
+        this.championshipClient = championshipClient;
     }
 
     @Override
@@ -36,12 +39,17 @@ public class MatchInMemoryService implements MatchService {
     }
 
     @Override
-    public Match findChampionship(Long id) {
-        final var relationships = this.relationships.stream()
+    public Championship findChampionship(Long id) {
+        return this.relationships.stream()
                 .filter(relationship -> relationship.ofMatch(id))
                 .findAny()
                 .map(MatchRelationships::getChampionship)
-                .map(Link::getHref);
-        return null;
+                .map(Link::getHref)
+                .map(championshipClient::find)
+                .map(championship -> {
+                    championship.setSelf("/matches/" + id + "/championships");
+                    return championship;
+                })
+                .orElse(null);
     }
 }

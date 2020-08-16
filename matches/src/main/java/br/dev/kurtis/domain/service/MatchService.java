@@ -1,5 +1,6 @@
 package br.dev.kurtis.domain.service;
 
+import br.dev.kurtis.domain.model.Championship;
 import br.dev.kurtis.domain.model.Match;
 import br.dev.kurtis.domain.model.Matches;
 
@@ -8,5 +9,5 @@ public interface MatchService {
 
     Match findOne(Long id);
 
-    Match findChampionship(Long id);
+    Championship findChampionship(Long id);
 }

@@ -1,5 +1,6 @@
 package br.dev.kurtis.infra;
 
+import br.dev.kurtis.domain.model.Championship;
 import br.dev.kurtis.domain.model.Match;
 import br.dev.kurtis.domain.model.Matches;
 import br.dev.kurtis.domain.service.MatchService;
@@ -37,7 +38,7 @@ public class MatchController {
     @GET
     @Path("/{id}/championship")
     @Produces(MediaType.APPLICATION_JSON)
-    public Match findChampionship(@PathParam(value = "id") Long id) {
+    public Championship findChampionship(@PathParam(value = "id") Long id) {
         return this.service.findChampionship(id);
     }
 }

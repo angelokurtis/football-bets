@@ -1,12 +1,11 @@
 
 package br.dev.kurtis.domain.model;
 
-import java.util.Optional;
-
-public class MatchRelationships {
+public class ChampionshipLinks {
 
     private Link self;
     private Link championship;
+    private Link teams;
 
     public Link getSelf() {
         return self;
@@ -24,10 +23,11 @@ public class MatchRelationships {
         this.championship = championship;
     }
 
-    public boolean ofMatch(Long id) {
-        return Optional.ofNullable(this.getSelf())
-                .map(Link::getHref)
-                .filter(self -> self.equals("/matches/" + id + "/championship"))
-                .isPresent();
+    public Link getTeams() {
+        return teams;
+    }
+
+    public void setTeams(Link teams) {
+        this.teams = teams;
     }
 }

@@ -9,7 +9,7 @@ public class Matches {
     @JsonbProperty("_embedded")
     private Embedded embedded;
     @JsonbProperty("_links")
-    private Links links;
+    private MatchesLinks links;
 
     public Stream<Match> stream() {
         return Optional.ofNullable(this.embedded)
@@ -26,11 +26,11 @@ public class Matches {
         this.embedded = embedded;
     }
 
-    public Links getLinks() {
+    public MatchesLinks getLinks() {
         return links;
     }
 
-    public void setLinks(Links links) {
+    public void setLinks(MatchesLinks links) {
         this.links = links;
     }
 }
