@@ -1,15 +1,15 @@
-FROM golang:1.15.0-alpine AS build
+FROM golang:1.15.0-alpine AS builder
 
-ADD . $GOPATH/src/github.com/angelokurtis/football-bets/bets
-WORKDIR $GOPATH/src/github.com/angelokurtis/football-bets/bets
+WORKDIR $GOPATH/src/bets
+COPY . .
 
 RUN go get -d -v
-RUN go build -o /go/bin/bets
+RUN GOOS=linux GOARCH=amd64 go build -ldflags="-w -s" -o /bin/bets
 
-FROM scratch
+FROM alpine
 
-COPY --from=build /go/bin/bets /go/bin/bets
-EXPOSE 8080
+COPY --from=builder /bin/bets /bin/bets
+EXPOSE 9090
 
-ENTRYPOINT ["/go/bin/bets"]
+CMD ["/bin/bets"]
 
