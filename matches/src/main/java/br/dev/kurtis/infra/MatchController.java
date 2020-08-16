@@ -33,4 +33,11 @@ public class MatchController {
     public Match findOne(@PathParam(value = "id") Long id) {
         return this.service.findOne(id);
     }
+
+    @GET
+    @Path("/{id}/championship")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Match findChampionship(@PathParam(value = "id") Long id) {
+        return this.service.findChampionship(id);
+    }
 }

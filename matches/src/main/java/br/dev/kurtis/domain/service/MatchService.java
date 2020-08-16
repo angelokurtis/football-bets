@@ -7,4 +7,6 @@ public interface MatchService {
     Matches findAll();
 
     Match findOne(Long id);
+
+    Match findChampionship(Long id);
 }
