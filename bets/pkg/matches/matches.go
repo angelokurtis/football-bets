@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/angelokurtis/football-bets/bets/internal/http"
+	"github.com/angelokurtis/football-bets/bets/internal/log"
+	"github.com/angelokurtis/football-bets/bets/pkg/championships"
 	"math/rand"
 	"time"
 )
@@ -34,6 +36,8 @@ func GetRandomly() (*Match, error) {
 	if err != nil {
 		return nil, err
 	}
+	log.Info("obtained all matches")
+
 	if len(matches) == 0 {
 		return nil, nil
 	}
@@ -51,6 +55,18 @@ func shuffle(matches []*Match) []*Match {
 		matches = append(matches[:randIndex], matches[randIndex+1:]...)
 	}
 	return res
+}
+
+func GetChampionship(href string) (*championships.Championship, error) {
+	body, err := Get(href)
+	if err != nil {
+		return nil, err
+	}
+	var obj *championships.Championship
+	if err := json.Unmarshal(body, &obj); err != nil {
+		return nil, err
+	}
+	return obj, nil
 }
 
 type Response struct {
