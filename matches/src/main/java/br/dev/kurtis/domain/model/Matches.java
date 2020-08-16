@@ -5,7 +5,7 @@ import java.util.Collection;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-public class Resource {
+public class Matches {
     @JsonbProperty("_embedded")
     private Embedded embedded;
     @JsonbProperty("_links")

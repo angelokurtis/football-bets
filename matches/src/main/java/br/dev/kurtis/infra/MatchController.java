@@ -1,7 +1,7 @@
 package br.dev.kurtis.infra;
 
 import br.dev.kurtis.domain.model.Match;
-import br.dev.kurtis.domain.model.Resource;
+import br.dev.kurtis.domain.model.Matches;
 import br.dev.kurtis.domain.service.MatchService;
 
 import javax.inject.Inject;
@@ -23,7 +23,7 @@ public class MatchController {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public Resource findAll() {
+    public Matches findAll() {
         return this.service.findAll();
     }
 

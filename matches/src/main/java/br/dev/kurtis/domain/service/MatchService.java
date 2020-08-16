@@ -1,10 +1,10 @@
 package br.dev.kurtis.domain.service;
 
 import br.dev.kurtis.domain.model.Match;
-import br.dev.kurtis.domain.model.Resource;
+import br.dev.kurtis.domain.model.Matches;
 
 public interface MatchService {
-    Resource findAll();
+    Matches findAll();
 
     Match findOne(Long id);
 }

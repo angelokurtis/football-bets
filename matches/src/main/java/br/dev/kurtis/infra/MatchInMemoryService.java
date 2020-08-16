@@ -1,7 +1,7 @@
 package br.dev.kurtis.infra;
 
 import br.dev.kurtis.domain.model.Match;
-import br.dev.kurtis.domain.model.Resource;
+import br.dev.kurtis.domain.model.Matches;
 import br.dev.kurtis.domain.service.MatchService;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -10,21 +10,21 @@ import javax.inject.Inject;
 @ApplicationScoped
 public class MatchInMemoryService implements MatchService {
 
-    private final Resource resource;
+    private final Matches matches;
 
     @Inject
-    public MatchInMemoryService(Resource resource) {
-        this.resource = resource;
+    public MatchInMemoryService(Matches matches) {
+        this.matches = matches;
     }
 
     @Override
-    public Resource findAll() {
-        return this.resource;
+    public Matches findAll() {
+        return this.matches;
     }
 
     @Override
     public Match findOne(Long id) {
-        return this.resource.stream()
+        return this.matches.stream()
                 .filter(match -> match.hasId(id))
                 .findAny()
                 .orElse(null);

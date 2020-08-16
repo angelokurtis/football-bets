@@ -1,6 +1,6 @@
 package br.dev.kurtis.infra;
 
-import br.dev.kurtis.domain.model.Resource;
+import br.dev.kurtis.domain.model.Matches;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import javax.enterprise.context.Dependent;
@@ -20,10 +20,10 @@ public class MatchConfiguration {
     }
 
     @Produces
-    public Resource matchesFromJson(Jsonb jsonb) throws IOException {
+    public Matches matchesFromJson(Jsonb jsonb) throws IOException {
         Path path = Path.of(this.directory + "/matches.json");
         String content = Files.readString(path);
 
-        return jsonb.fromJson(content, Resource.class);
+        return jsonb.fromJson(content, Matches.class);
     }
 }
