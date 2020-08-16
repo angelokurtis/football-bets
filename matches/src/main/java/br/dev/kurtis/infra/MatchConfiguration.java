@@ -1,5 +1,6 @@
 package br.dev.kurtis.infra;
 
+import br.dev.kurtis.domain.model.MatchRelationships;
 import br.dev.kurtis.domain.model.Matches;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
@@ -9,6 +10,8 @@ import javax.json.bind.Jsonb;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 
 @Dependent
 public class MatchConfiguration {
@@ -25,5 +28,13 @@ public class MatchConfiguration {
         String content = Files.readString(path);
 
         return jsonb.fromJson(content, Matches.class);
+    }
+
+    @Produces
+    public List<MatchRelationships> relationshipsFromJson(Jsonb jsonb) throws IOException {
+        Path path = Path.of(this.directory + "/relationships.json");
+        String content = Files.readString(path);
+
+        return jsonb.fromJson(content, new ArrayList<MatchRelationships>(){}.getClass().getGenericSuperclass());
     }
 }
