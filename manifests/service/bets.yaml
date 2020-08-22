@@ -9,4 +9,5 @@ spec:
     app: bets
   ports:
     - port: 9090
+      name: http
   type: NodePort

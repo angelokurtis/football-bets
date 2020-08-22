@@ -9,4 +9,5 @@ spec:
     app: teams
   ports:
     - port: 3000
+      name: http
   type: NodePort
