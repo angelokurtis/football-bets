@@ -17,8 +17,8 @@ func main() {
 	r.Use(healthCheck.Default())
 	r.POST("/bets", func(c *gin.Context) {
 		log.Info("received request to bet")
-
-		m, err := matches.GetRandomly()
+		headers := c.Request.Header.Clone()
+		m, err := matches.GetRandomly(headers)
 		if err != nil || m == nil {
 			log.Error(err)
 			c.JSON(http.StatusServiceUnavailable, gin.H{"status": "matches service is unavailable"})
@@ -26,7 +26,7 @@ func main() {
 		}
 		log.Info("selected a match randomly")
 
-		ht, err := teams.GetOne(m.ScoreHome.Links.Team.Href)
+		ht, err := teams.GetOne(m.ScoreHome.Links.Team.Href, headers)
 		if err != nil || ht == nil {
 			log.Error(err)
 			c.JSON(http.StatusServiceUnavailable, gin.H{"status": "teams service is unavailable"})
@@ -34,7 +34,7 @@ func main() {
 		}
 		log.Info("obtained home team")
 
-		at, err := teams.GetOne(m.ScoreAway.Links.Team.Href)
+		at, err := teams.GetOne(m.ScoreAway.Links.Team.Href, headers)
 		if err != nil || at == nil {
 			log.Error(err)
 			c.JSON(http.StatusServiceUnavailable, gin.H{"status": "teams service is unavailable"})
@@ -42,7 +42,7 @@ func main() {
 		}
 		log.Info("obtained away team")
 
-		championship, err := matches.GetChampionship(m.Links.Championship.Href)
+		championship, err := matches.GetChampionship(m.Links.Championship.Href, headers)
 		if err != nil || championship == nil {
 			log.Error(err)
 			c.JSON(http.StatusServiceUnavailable, gin.H{"status": "championships service is unavailable"})

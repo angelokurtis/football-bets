@@ -10,17 +10,17 @@ import (
 	"time"
 )
 
-func Get(href string) ([]byte, error) {
+func Get(href string, headers map[string][]string) ([]byte, error) {
 	url := fmt.Sprintf("http://matches:8080%s", href)
-	body, err := http.Get(url)
+	body, err := http.Get(url, headers)
 	if err != nil {
 		return nil, err
 	}
 	return body, nil
 }
 
-func GetAll() ([]*Match, error) {
-	body, err := Get("/matches")
+func GetAll(headers map[string][]string) ([]*Match, error) {
+	body, err := Get("/matches", headers)
 	if err != nil {
 		return nil, err
 	}
@@ -31,8 +31,8 @@ func GetAll() ([]*Match, error) {
 	return obj.Embedded.Matches, nil
 }
 
-func GetRandomly() (*Match, error) {
-	matches, err := GetAll()
+func GetRandomly(headers map[string][]string) (*Match, error) {
+	matches, err := GetAll(headers)
 	if err != nil {
 		return nil, err
 	}
@@ -57,8 +57,8 @@ func shuffle(matches []*Match) []*Match {
 	return res
 }
 
-func GetChampionship(href string) (*championships.Championship, error) {
-	body, err := Get(href)
+func GetChampionship(href string, headers map[string][]string) (*championships.Championship, error) {
+	body, err := Get(href, headers)
 	if err != nil {
 		return nil, err
 	}
