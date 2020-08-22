@@ -2,7 +2,8 @@ package teams
 
 import (
 	"encoding/json"
-	"fmt"
+	"net/url"
+	"os"
 )
 
 import (
@@ -10,8 +11,12 @@ import (
 )
 
 func Get(href string, headers map[string][]string) ([]byte, error) {
-	url := fmt.Sprintf("http://teams:3000%s", href)
-	body, err := http.Get(url, headers)
+	u := &url.URL{
+		Scheme: "http",
+		Host:   os.Getenv("TEAMS_ADDRESS"),
+		Path:   href,
+	}
+	body, err := http.Get(u.String(), headers)
 	if err != nil {
 		return nil, err
 	}

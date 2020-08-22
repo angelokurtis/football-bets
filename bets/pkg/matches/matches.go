@@ -2,17 +2,22 @@ package matches
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/angelokurtis/football-bets/bets/internal/http"
 	"github.com/angelokurtis/football-bets/bets/internal/log"
 	"github.com/angelokurtis/football-bets/bets/pkg/championships"
 	"math/rand"
+	"net/url"
+	"os"
 	"time"
 )
 
 func Get(href string, headers map[string][]string) ([]byte, error) {
-	url := fmt.Sprintf("http://matches:8080%s", href)
-	body, err := http.Get(url, headers)
+	u := &url.URL{
+		Scheme: "http",
+		Host:   os.Getenv("MATCHES_ADDRESS"),
+		Path:   href,
+	}
+	body, err := http.Get(u.String(), headers)
 	if err != nil {
 		return nil, err
 	}
