@@ -1,12 +1,10 @@
 package http
 
 import (
-	"github.com/angelokurtis/football-bets/bets/internal/log"
 	"io/ioutil"
 	"net/http"
+	"strings"
 )
-
-var ignoredHeaders = []string{"Content-Length", "User-Agent", "Accept-Encoding", "Accept", "Connection"}
 
 func Get(url string, headers http.Header) ([]byte, error) {
 	method := "GET"
@@ -17,10 +15,9 @@ func Get(url string, headers http.Header) ([]byte, error) {
 	}
 
 	for key := range headers {
-		if !shouldIgnore(key) {
+		if shouldBePropagated(key) {
 			val := headers.Get(key)
 			req.Header.Add(key, val)
-			log.Debugf("set header '%s' = '%s'", key, val)
 		}
 	}
 
@@ -37,12 +34,6 @@ func Get(url string, headers http.Header) ([]byte, error) {
 
 	return body, nil
 }
-
-func shouldIgnore(e string) bool {
-	for _, a := range ignoredHeaders {
-		if a == e {
-			return true
-		}
-	}
-	return false
+func shouldBePropagated(header string) bool {
+	return strings.HasPrefix(header, "X-B3-") || header == "Authorization"
 }
