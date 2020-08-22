@@ -18,6 +18,11 @@ spec:
         - name: bets
           image: kurtis/bets:v1
           imagePullPolicy: Always
+          env:
+            - name: MATCHES_ADDRESS
+              value: matches:8080
+            - name: TEAMS_ADDRESS
+              value: teams:3000
           ports:
             - containerPort: 9090
           livenessProbe:
