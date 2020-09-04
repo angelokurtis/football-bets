@@ -2,6 +2,7 @@ package teams
 
 import (
 	"encoding/json"
+	"github.com/pkg/errors"
 	"net/url"
 	"os"
 )
@@ -30,7 +31,7 @@ func GetOne(href string, headers map[string][]string) (*Team, error) {
 	}
 	var obj *Team
 	if err := json.Unmarshal(body, &obj); err != nil {
-		return nil, err
+		return nil, errors.WithStack(err)
 	}
 	return obj, nil
 }

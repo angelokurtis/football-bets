@@ -5,6 +5,7 @@ import (
 	"github.com/angelokurtis/football-bets/bets/internal/http"
 	"github.com/angelokurtis/football-bets/bets/internal/log"
 	"github.com/angelokurtis/football-bets/bets/pkg/championships"
+	"github.com/pkg/errors"
 	"math/rand"
 	"net/url"
 	"os"
@@ -31,7 +32,7 @@ func GetAll(headers map[string][]string) ([]*Match, error) {
 	}
 	var obj *Response
 	if err := json.Unmarshal(body, &obj); err != nil {
-		return nil, err
+		return nil, errors.WithStack(err)
 	}
 	return obj.Embedded.Matches, nil
 }
@@ -69,7 +70,7 @@ func GetChampionship(href string, headers map[string][]string) (*championships.C
 	}
 	var obj *championships.Championship
 	if err := json.Unmarshal(body, &obj); err != nil {
-		return nil, err
+		return nil, errors.WithStack(err)
 	}
 	return obj, nil
 }
