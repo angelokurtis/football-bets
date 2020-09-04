@@ -1,6 +1,7 @@
 package http
 
 import (
+	"github.com/angelokurtis/football-bets/bets/internal/log"
 	"io/ioutil"
 	"net/http"
 	"strings"
@@ -21,6 +22,7 @@ func Get(url string, headers http.Header) ([]byte, error) {
 		}
 	}
 
+	log.Debugf("get req to %s", url)
 	res, err := client.Do(req)
 	if err != nil {
 		return nil, err

@@ -32,7 +32,7 @@ func main() {
 			c.JSON(http.StatusServiceUnavailable, gin.H{"status": "teams service is unavailable"})
 			return
 		}
-		log.Info("obtained home team")
+		log.Infof("obtained %s as home team", ht.Name)
 
 		at, err := teams.GetOne(m.ScoreAway.Links.Team.Href, headers)
 		if err != nil || at == nil {
@@ -40,7 +40,7 @@ func main() {
 			c.JSON(http.StatusServiceUnavailable, gin.H{"status": "teams service is unavailable"})
 			return
 		}
-		log.Info("obtained away team")
+		log.Infof("obtained %s as away team", at.Name)
 
 		championship, err := matches.GetChampionship(m.Links.Championship.Href, headers)
 		if err != nil || championship == nil {
@@ -48,7 +48,7 @@ func main() {
 			c.JSON(http.StatusServiceUnavailable, gin.H{"status": "championships service is unavailable"})
 			return
 		}
-		log.Info("obtained championship")
+		log.Infof("obtained %s championship", championship.Name)
 
 		bet := bets.New(m, championship, ht, at)
 		log.Info("successful bet")
