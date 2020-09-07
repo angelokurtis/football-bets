@@ -22,6 +22,7 @@ class TeamV2 {
 const Team = process.env.VERSION === 'v2' ? TeamV2 : TeamV1
 
 const getTeams = async (req, res, next) => {
+    console.log(new Trace(req).string() + "received request to get all teams")
     try {
         res.json(teams);
     } catch (e) {
@@ -30,6 +31,7 @@ const getTeams = async (req, res, next) => {
 };
 
 const getTeam = async (req, res, next) => {
+    console.log(new Trace(req).string() + "received request to get the team " + req.params.id)
     try {
         const team = teams._embedded.teams
             .filter(({_links}) => _links.team.href === `/teams/${req.params.id}`)
@@ -51,5 +53,20 @@ router
 router
     .route('/teams/:id')
     .get(getTeam);
+
+class Trace {
+    constructor(req) {
+        this.traceId = req.header('X-B3-TraceId')
+        this.spanId = req.header('X-B3-SpanId')
+        this.sampled = req.header('X-B3-Sampled')
+    }
+
+    string() {
+        if (this.traceId || this.spanId || this.sampled) {
+            return `[${this.traceId},${this.spanId},${this.sampled}] `
+        }
+        return ""
+    }
+}
 
 module.exports = router;

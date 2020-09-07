@@ -3,3 +3,6 @@ micronaut:
     name: championships
 championships:
   directory: ${DATA_DIR:/usr/src/data}
+logger:
+  levels:
+    br.dev.kurtis: DEBUG
