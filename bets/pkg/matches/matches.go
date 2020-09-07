@@ -1,9 +1,10 @@
 package matches
 
 import (
+	"context"
 	"encoding/json"
 	"github.com/angelokurtis/football-bets/bets/internal/http"
-	"github.com/angelokurtis/football-bets/bets/internal/log"
+	"github.com/angelokurtis/football-bets/bets/internal/logger"
 	"github.com/angelokurtis/football-bets/bets/pkg/championships"
 	"github.com/pkg/errors"
 	"math/rand"
@@ -12,21 +13,21 @@ import (
 	"time"
 )
 
-func Get(href string, headers map[string][]string) ([]byte, error) {
+func Get(c context.Context, href string) ([]byte, error) {
 	u := &url.URL{
 		Scheme: "http",
 		Host:   os.Getenv("MATCHES_ADDRESS"),
 		Path:   href,
 	}
-	body, err := http.Get(u.String(), headers)
+	body, err := http.Get(c, u.String())
 	if err != nil {
 		return nil, err
 	}
 	return body, nil
 }
 
-func GetAll(headers map[string][]string) ([]*Match, error) {
-	body, err := Get("/matches", headers)
+func GetAll(c context.Context) ([]*Match, error) {
+	body, err := Get(c, "/matches")
 	if err != nil {
 		return nil, err
 	}
@@ -37,11 +38,13 @@ func GetAll(headers map[string][]string) ([]*Match, error) {
 	return obj.Embedded.Matches, nil
 }
 
-func GetRandomly(headers map[string][]string) (*Match, error) {
-	matches, err := GetAll(headers)
+func GetRandomly(c context.Context) (*Match, error) {
+	matches, err := GetAll(c)
 	if err != nil {
 		return nil, err
 	}
+
+	log := logger.New(c)
 	log.Info("obtained all matches")
 
 	if len(matches) == 0 {
@@ -63,8 +66,8 @@ func shuffle(matches []*Match) []*Match {
 	return res
 }
 
-func GetChampionship(href string, headers map[string][]string) (*championships.Championship, error) {
-	body, err := Get(href, headers)
+func GetChampionship(c context.Context, href string) (*championships.Championship, error) {
+	body, err := Get(c, href)
 	if err != nil {
 		return nil, err
 	}
