@@ -39,13 +39,18 @@ public class MatchInMemoryService implements MatchService {
     }
 
     @Override
-    public Championship findChampionship(Long id) {
+    public Championship findChampionship(Trace trace, Long id) {
         return this.relationships.stream()
                 .filter(relationship -> relationship.ofMatch(id))
                 .findAny()
                 .map(MatchRelationships::getChampionship)
                 .map(Link::getHref)
-                .map(championshipClient::find)
+                .map(href -> championshipClient.find(
+                        trace.getTraceId(),
+                        trace.getParentSpanId(),
+                        trace.getSpanId(),
+                        trace.getSampled(),
+                        href))
                 .map(championship -> {
                     championship.setSelf("/matches/" + id + "/championships");
                     return championship;

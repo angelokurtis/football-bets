@@ -45,7 +45,8 @@ public class MatchController {
     @Path("/{id}/championship")
     @Produces(MediaType.APPLICATION_JSON)
     public Championship findChampionship(@Context HttpHeaders headers, @PathParam(value = "id") Long id) {
-        LOG.infof(new Trace(headers).toString() + "received request for the championship of match '%s'", id);
-        return this.service.findChampionship(id);
+        final var trace = new Trace(headers);
+        LOG.infof(trace.toString() + "received request for the championship of match '%s'", id);
+        return this.service.findChampionship(trace, id);
     }
 }
