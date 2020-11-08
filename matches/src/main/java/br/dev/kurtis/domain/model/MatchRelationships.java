@@ -1,8 +1,11 @@
 
 package br.dev.kurtis.domain.model;
 
+import io.quarkus.runtime.annotations.RegisterForReflection;
+
 import java.util.Optional;
 
+@RegisterForReflection
 public class MatchRelationships {
 
     private Link self;
