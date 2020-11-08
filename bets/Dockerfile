@@ -1,12 +1,12 @@
-FROM golang:1.15.0-alpine AS builder
+FROM golang:1.15-buster AS builder
 
 WORKDIR $GOPATH/src/bets
 COPY . .
 
 RUN go get -d -v
-RUN GOOS=linux GOARCH=amd64 go build -ldflags="-w -s" -o /bin/bets
+RUN go build -o /bin/bets
 
-FROM alpine
+FROM gcr.io/distroless/base
 
 COPY --from=builder /bin/bets /bin/bets
 EXPOSE 9090
