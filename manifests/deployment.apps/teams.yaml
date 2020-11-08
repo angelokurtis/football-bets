@@ -32,17 +32,11 @@ spec:
               port: 9000
             initialDelaySeconds: 1
             periodSeconds: 10
-          volumeMounts:
-            - name: teams
-              mountPath: /usr/src/data
-      volumes:
-        - name: teams
-          configMap:
-            name: teams
       restartPolicy: Always
   selector:
     matchLabels:
       app: teams
+      version: v1
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -77,14 +71,8 @@ spec:
               port: 9000
             initialDelaySeconds: 1
             periodSeconds: 10
-          volumeMounts:
-            - name: teams
-              mountPath: /usr/src/data
-      volumes:
-        - name: teams
-          configMap:
-            name: teams
       restartPolicy: Always
   selector:
     matchLabels:
       app: teams
+      version: v2

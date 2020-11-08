@@ -26,14 +26,8 @@ spec:
               port: 8080
             initialDelaySeconds: 1
             periodSeconds: 10
-          volumeMounts:
-            - name: championships
-              mountPath: /usr/src/data
-      volumes:
-        - name: championships
-          configMap:
-            name: championships
       restartPolicy: Always
   selector:
     matchLabels:
       app: championships
+      version: v1

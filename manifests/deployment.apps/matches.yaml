@@ -32,14 +32,8 @@ spec:
               port: 8080
             initialDelaySeconds: 1
             periodSeconds: 10
-          volumeMounts:
-            - name: matches
-              mountPath: /usr/src/data
-      volumes:
-        - name: matches
-          configMap:
-            name: matches
       restartPolicy: Always
   selector:
     matchLabels:
       app: matches
+      version: v1
