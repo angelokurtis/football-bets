@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: bets
+data:
+  MATCHES_ADDRESS: matches:8080
+  TEAMS_ADDRESS: teams:3000
