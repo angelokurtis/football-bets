@@ -1,0 +1,256 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: bets
+data:
+  MATCHES_ADDRESS: matches:8080
+  TEAMS_ADDRESS: teams:3000
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bets
+  labels:
+    app: bets
+    version: v1
+spec:
+  replicas: 1
+  template:
+    metadata:
+      name: bets
+      labels:
+        app: bets
+        version: v1
+    spec:
+      containers:
+        - name: bets
+          image: kurtis/bets:v1
+          imagePullPolicy: Always
+          envFrom:
+            - configMapRef:
+                name: bets
+          ports:
+            - containerPort: 9090
+          livenessProbe:
+            httpGet:
+              port: 9090
+              httpHeaders:
+                - name: X-Health-Check
+                  value: '1'
+            initialDelaySeconds: 1
+            periodSeconds: 10
+      restartPolicy: Always
+  selector:
+    matchLabels:
+      app: bets
+      version: v1
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: championships
+  labels:
+    app: championships
+    version: v1
+spec:
+  replicas: 1
+  template:
+    metadata:
+      name: championships
+      labels:
+        app: championships
+        version: v1
+    spec:
+      containers:
+        - name: championships
+          image: kurtis/championships:v1
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 1
+            periodSeconds: 10
+      restartPolicy: Always
+  selector:
+    matchLabels:
+      app: championships
+      version: v1
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: matches
+  labels:
+    app: matches
+    version: v1
+spec:
+  replicas: 1
+  template:
+    metadata:
+      name: matches
+      labels:
+        app: matches
+        version: v1
+    spec:
+      containers:
+        - name: matches
+          image: kurtis/matches:v1
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+          livenessProbe:
+            httpGet:
+              path: /health/live
+              port: 8080
+            initialDelaySeconds: 1
+            periodSeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /health/ready
+              port: 8080
+            initialDelaySeconds: 1
+            periodSeconds: 10
+      restartPolicy: Always
+  selector:
+    matchLabels:
+      app: matches
+      version: v1
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: teams-v1
+  labels:
+    app: teams
+    version: v1
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: teams
+        version: v1
+    spec:
+      containers:
+        - name: teams
+          image: kurtis/teams:v1
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 3000
+          livenessProbe:
+            httpGet:
+              path: /live
+              port: 9000
+            initialDelaySeconds: 1
+            periodSeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: 9000
+            initialDelaySeconds: 1
+            periodSeconds: 10
+      restartPolicy: Always
+  selector:
+    matchLabels:
+      app: teams
+      version: v1
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: teams-v2
+  labels:
+    app: teams
+    version: v2
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: teams
+        version: v2
+    spec:
+      containers:
+        - name: teams
+          image: kurtis/teams:v2
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 3000
+          livenessProbe:
+            httpGet:
+              path: /live
+              port: 9000
+            initialDelaySeconds: 1
+            periodSeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: 9000
+            initialDelaySeconds: 1
+            periodSeconds: 10
+      restartPolicy: Always
+  selector:
+    matchLabels:
+      app: teams
+      version: v2
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: bets
+  labels:
+    app: bets
+spec:
+  selector:
+    app: bets
+  ports:
+    - port: 9090
+      name: http
+  type: NodePort
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: championships
+  labels:
+    app: championships
+spec:
+  selector:
+    app: championships
+  ports:
+    - port: 8080
+      name: http
+  type: NodePort
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: matches
+  labels:
+    app: matches
+spec:
+  selector:
+    app: matches
+  ports:
+    - port: 8080
+      name: http
+  type: NodePort
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: teams
+  labels:
+    app: teams
+spec:
+  selector:
+    app: teams
+  ports:
+    - port: 3000
+      name: http
+  type: NodePort
+---
