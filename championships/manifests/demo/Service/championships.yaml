@@ -1,0 +1,24 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: championships
+  name: championships
+  namespace: demo
+spec:
+  clusterIPs:
+    - 10.96.113.25
+  externalTrafficPolicy: Cluster
+  internalTrafficPolicy: Cluster
+  ipFamilies:
+    - IPv4
+  ipFamilyPolicy: SingleStack
+  ports:
+    - name: http
+      nodePort: 31620
+      port: 8080
+      protocol: TCP
+      targetPort: 8080
+  selector:
+    app: championships
+  type: NodePort

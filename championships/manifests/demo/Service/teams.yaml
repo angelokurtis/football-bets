@@ -1,0 +1,24 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: teams
+  name: teams
+  namespace: demo
+spec:
+  clusterIPs:
+    - 10.96.76.163
+  externalTrafficPolicy: Cluster
+  internalTrafficPolicy: Cluster
+  ipFamilies:
+    - IPv4
+  ipFamilyPolicy: SingleStack
+  ports:
+    - name: http
+      nodePort: 30288
+      port: 3000
+      protocol: TCP
+      targetPort: 3000
+  selector:
+    app: teams
+  type: NodePort

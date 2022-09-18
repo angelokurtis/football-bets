@@ -1,15 +1,17 @@
-FROM oracle/graalvm-ce:20.1.0-java8 as graalvm
-RUN gu install native-image
+FROM amazoncorretto:18.0.2 as build
 
-COPY . /home/app/championships
-WORKDIR /home/app/championships
+COPY .mvn .mvn
+COPY mvnw .
+COPY pom.xml .
+COPY src src
+RUN --mount=type=cache,target=/root/.m2 ./mvnw -B package
 
-RUN native-image --no-server -cp build/libs/championships-*-all.jar
+FROM amazoncorretto:18.0.2
 
-FROM frolvlad/alpine-glibc
-RUN apk update && apk add libstdc++
-ENV DATA_DIR=/usr/src/data
-ADD ./data.tar.xz $DATA_DIR/
-EXPOSE 8080
-COPY --from=graalvm /home/app/championships/championships /app/championships
-ENTRYPOINT ["/app/championships"]
+ENV DATA_DIR=championships.json
+
+ADD championships.json .
+COPY --from=build target/championships-1.0.0.jar .
+EXPOSE 8082 9092
+
+CMD ["championships-1.0.0.jar"]

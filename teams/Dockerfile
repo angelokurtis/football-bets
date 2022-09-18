@@ -1,14 +1,17 @@
-FROM node:lts-stretch-slim
+FROM amazoncorretto:18.0.2 as build
 
-ENV DATA_DIR=/usr/src/data
-ADD ./data.tar.xz $DATA_DIR/
+COPY .mvn .mvn
+COPY mvnw .
+COPY pom.xml .
+COPY src src
+RUN --mount=type=cache,target=/root/.m2 ./mvnw -B package
 
-WORKDIR /usr/src/app
+FROM amazoncorretto:18.0.2
 
-COPY package*.json ./
+ENV DATA_DIR=teams.json
 
-RUN npm install
-COPY . .
+ADD teams.json .
+COPY --from=build target/teams-1.0.0.jar .
+EXPOSE 8084 9094
 
-EXPOSE 3000
-CMD [ "node", "index.js" ]
+CMD ["teams-1.0.0.jar"]

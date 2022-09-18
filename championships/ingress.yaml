@@ -1,0 +1,38 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: bets
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: bets.lvh.me
+      http:
+        paths:
+          - backend:
+              service:
+                name: bets
+                port:
+                  name: http
+            path: /bets
+            pathType: Prefix
+          - backend:
+              service:
+                name: championships
+                port:
+                  name: http
+            path: /championships
+            pathType: Prefix
+          - backend:
+              service:
+                name: matches
+                port:
+                  name: http
+            path: /matches
+            pathType: Prefix
+          - backend:
+              service:
+                name: teams
+                port:
+                  name: http
+            path: /teams
+            pathType: Prefix

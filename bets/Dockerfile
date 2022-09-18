@@ -1,15 +1,14 @@
-FROM golang:1.15-buster AS builder
+FROM amazoncorretto:18.0.2 as build
 
-WORKDIR $GOPATH/src/bets
-COPY . .
+COPY .mvn .mvn
+COPY mvnw .
+COPY pom.xml .
+COPY src src
+RUN --mount=type=cache,target=/root/.m2 ./mvnw -B package
 
-RUN go get -d -v
-RUN go build -o /bin/bets
+FROM amazoncorretto:18.0.2
 
-FROM gcr.io/distroless/base
+COPY --from=build target/bets-1.0.0.jar .
+EXPOSE 8081 9091
 
-COPY --from=builder /bin/bets /bin/bets
-EXPOSE 9090
-
-CMD ["/bin/bets"]
-
+CMD ["bets-1.0.0.jar"]

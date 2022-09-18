@@ -2,12 +2,10 @@
 Simple polyglot microservices examples to use for tests on Kubernetes
 
 # Microservices
-* [Bets](https://github.com/angelokurtis/football-bets/tree/master/bets) <a href="https://golang.org/"><img src="https://github.com/angelokurtis/football-bets/raw/master/images/golang.png" width="5%"></a> + <a href="https://gin-gonic.com/"><img src="https://github.com/angelokurtis/football-bets/raw/master/images/gin.png" width="3%"></a>
+* [Bets](https://github.com/angelokurtis/football-bets/tree/multiverse/java-spring/bets) <a href="https://java.com/"><img src="https://github.com/angelokurtis/football-bets/raw/multiverse/java-spring/images/java.png" width="3%"></a> + <a href="https://spring.io/"><img src="https://github.com/angelokurtis/football-bets/raw/multiverse/java-spring/images/spring.png" width="4%"></a>
 
-* [Championships](https://github.com/angelokurtis/football-bets/tree/master/championships) <a href="https://kotlinlang.org/"><img src="https://github.com/angelokurtis/football-bets/raw/master/images/kotlin.png" width="3%"></a> + <a href="https://micronaut.io/"><img src="https://github.com/angelokurtis/football-bets/raw/master/images/micronaut.png" width="5%"></a>
+* [Championships](https://github.com/angelokurtis/football-bets/tree/multiverse/java-spring/championships) <a href="https://java.com/"><img src="https://github.com/angelokurtis/football-bets/raw/multiverse/java-spring/images/java.png" width="3%"></a> + <a href="https://spring.io/"><img src="https://github.com/angelokurtis/football-bets/raw/multiverse/java-spring/images/spring.png" width="4%"></a>
 
-* [Matches](https://github.com/angelokurtis/football-bets/tree/master/matches) <a href="https://java.com/"><img src="https://github.com/angelokurtis/football-bets/raw/master/images/java.png" width="3%"></a> + <a href="https://quarkus.io/"><img src="https://github.com/angelokurtis/football-bets/raw/master/images/quarkus.png" width="4%"></a>
+* [Matches](https://github.com/angelokurtis/football-bets/tree/multiverse/java-spring/matches) <a href="https://java.com/"><img src="https://github.com/angelokurtis/football-bets/raw/multiverse/java-spring/images/java.png" width="3%"></a> + <a href="https://spring.io/"><img src="https://github.com/angelokurtis/football-bets/raw/multiverse/java-spring/images/spring.png" width="4%"></a>
 
-* [Teams](https://github.com/angelokurtis/football-bets/tree/master/teams) <a href="https://nodejs.org/"><img src="https://github.com/angelokurtis/football-bets/raw/master/images/nodejs.png" width="3%"></a> + <a href="https://expressjs.com/"><img src="https://github.com/angelokurtis/football-bets/raw/master/images/expressjs.png" width="10%"></a>
-
-
+* [Teams](https://github.com/angelokurtis/football-bets/tree/multiverse/java-spring/teams) <a href="https://java.com/"><img src="https://github.com/angelokurtis/football-bets/raw/multiverse/java-spring/images/java.png" width="3%"></a> + <a href="https://spring.io/"><img src="https://github.com/angelokurtis/football-bets/raw/multiverse/java-spring/images/spring.png" width="4%"></a>
