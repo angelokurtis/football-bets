@@ -1,6 +1,7 @@
 package br.dev.kurtis.matches;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -11,6 +12,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @RestController
 public class MatchController {
     private final MatchService service;
@@ -23,11 +25,13 @@ public class MatchController {
 
     @GetMapping(path = "/matches", produces = "application/hal+json")
     private Matches findAll() {
+        log.info("received request for all matches");
         return this.service.deserializeMatchesJSON();
     }
 
     @GetMapping(path = "/matches/{id}", produces = "application/hal+json")
     private Optional<Match> findOne(@PathVariable("id") final String id) {
+        log.info("received request for match '{}'", id);
         final Matches matches = this.service.deserializeMatchesJSON();
         return Optional.ofNullable(matches)
                 .map(Matches::getEmbedded)
@@ -46,6 +50,7 @@ public class MatchController {
 
     @GetMapping(path = "/matches/{id}/championship", produces = "application/hal+json")
     private Optional<ObjectNode> findChampionship(@PathVariable("id") final String id) {
+        log.info("received request for the championship of match {}", id);
         final List<Relationship> relationships = this.service.deserializeRelationshipsJSON(id);
         return Optional.ofNullable(relationships)
                 .stream()
