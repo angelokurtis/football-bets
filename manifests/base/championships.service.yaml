@@ -8,6 +8,7 @@ spec:
   selector:
     app: championships
   ports:
-    - port: 8080
+    - port: 8082
       name: http
+      targetPort: http
   type: NodePort

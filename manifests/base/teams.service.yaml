@@ -8,6 +8,7 @@ spec:
   selector:
     app: teams
   ports:
-    - port: 3000
+    - port: 8084
       name: http
+      targetPort: http
   type: NodePort

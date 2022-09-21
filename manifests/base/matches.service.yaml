@@ -8,6 +8,7 @@ spec:
   selector:
     app: matches
   ports:
-    - port: 8080
+    - port: 8083
       name: http
+      targetPort: http
   type: NodePort
