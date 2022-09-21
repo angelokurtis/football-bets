@@ -8,10 +8,12 @@ RUN --mount=type=cache,target=/root/.m2 ./mvnw -B package
 
 FROM amazoncorretto:18.0.2
 
-ENV DATA_DIR=matches.json
+ENV MATCHES_JSON_PATH=matches.json
+ENV RELATIONSHIPS_JSON_PATH=relationships.json
 
 ADD matches.json .
+ADD relationships.json .
 COPY --from=build target/matches-1.0.0.jar .
 EXPOSE 8083 9093
 
-CMD ["matches-1.0.0.jar"]
+CMD ["java", "-jar", "matches-1.0.0.jar"]
