@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: championships
+  labels:
+    app: championships
+spec:
+  replicas: 1
+  template:
+    metadata:
+      name: championships
+      labels:
+        app: championships
+    spec:
+      containers:
+        - name: championships
+          image: kurtis/championships:1.0.0-java-spring
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8082
+              name: http
+              protocol: TCP
+            - containerPort: 9092
+              name: actuator
+              protocol: TCP
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: actuator
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: actuator
+      restartPolicy: Always
+  selector:
+    matchLabels:
+      app: championships

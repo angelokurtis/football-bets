@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: teams
+  labels:
+    app: teams
+spec:
+  replicas: 1
+  template:
+    metadata:
+      name: teams
+      labels:
+        app: teams
+    spec:
+      containers:
+        - name: teams
+          image: kurtis/teams:1.0.0-java-spring
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8084
+              name: http
+              protocol: TCP
+            - containerPort: 9094
+              name: actuator
+              protocol: TCP
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: actuator
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: actuator
+      restartPolicy: Always
+  selector:
+    matchLabels:
+      app: teams

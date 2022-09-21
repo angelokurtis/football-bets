@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: matches
+  labels:
+    app: matches
+spec:
+  replicas: 1
+  template:
+    metadata:
+      name: matches
+      labels:
+        app: matches
+    spec:
+      containers:
+        - name: matches
+          image: kurtis/matches:1.0.0-java-spring
+          imagePullPolicy: IfNotPresent
+          envFrom:
+            - configMapRef:
+                name: matches
+          ports:
+            - containerPort: 8083
+              name: http
+              protocol: TCP
+            - containerPort: 9093
+              name: actuator
+              protocol: TCP
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: actuator
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: actuator
+      restartPolicy: Always
+  selector:
+    matchLabels:
+      app: matches
