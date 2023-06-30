@@ -10,7 +10,10 @@ FROM amazoncorretto:18.0.2
 
 ENV MATCHES_JSON_PATH=matches.json
 ENV RELATIONSHIPS_JSON_PATH=relationships.json
+ENV OTEL_AGENT_VERSION=1.27.0
+ENV JAVA_TOOL_OPTIONS="-javaagent:opentelemetry-javaagent.jar"
 
+ADD https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases/download/v${OTEL_AGENT_VERSION}/opentelemetry-javaagent.jar .
 ADD matches.json .
 ADD relationships.json .
 COPY --from=build target/matches-1.0.0.jar .
