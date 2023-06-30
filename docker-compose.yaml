@@ -1,0 +1,77 @@
+version: '3.8'
+services:
+  jaeger:
+    container_name: "jaeger"
+    image: jaegertracing/all-in-one:1.46.0
+    ports:
+      - "16686:16686" # Jaeger UI
+      - "4317:4317"   # OTLP over gRPC
+      - "4318:4318"   # OTLP over HTTP
+    environment:
+      - COLLECTOR_OTLP_ENABLED=true
+
+  bets:
+    container_name: "bets"
+    build:
+      context: bets/
+    ports:
+      - "8081:8081"
+    environment:
+      - OTEL_SERVICE_NAME=bets
+      - OTEL_TRACES_EXPORTER=otlp
+      - OTEL_METRICS_EXPORTER=none
+      - OTEL_LOGS_EXPORTER=none
+      - OTEL_EXPORTER_OTLP_TRACES_ENDPOINT=http://jaeger:4317
+      - MATCHES_URL=http://matches:8083
+      - TEAMS_URL=http://teams:8084
+    depends_on:
+      - matches
+      - teams
+      - jaeger
+
+  championships:
+    container_name: "championships"
+    build:
+      context: championships/
+    ports:
+      - "8082:8082"
+    environment:
+      - OTEL_SERVICE_NAME=championships
+      - OTEL_TRACES_EXPORTER=otlp
+      - OTEL_METRICS_EXPORTER=none
+      - OTEL_LOGS_EXPORTER=none
+      - OTEL_EXPORTER_OTLP_TRACES_ENDPOINT=http://jaeger:4317
+    depends_on:
+      - jaeger
+
+  matches:
+    container_name: "matches"
+    build:
+      context: matches/
+    ports:
+      - "8083:8083"
+    environment:
+      - OTEL_SERVICE_NAME=matches
+      - OTEL_TRACES_EXPORTER=otlp
+      - OTEL_METRICS_EXPORTER=none
+      - OTEL_LOGS_EXPORTER=none
+      - OTEL_EXPORTER_OTLP_TRACES_ENDPOINT=http://jaeger:4317
+      - CHAMPIONSHIPS_URL=http://championships:8082
+    depends_on:
+      - championships
+      - jaeger
+
+  teams:
+    container_name: "teams"
+    build:
+      context: teams/
+    ports:
+      - "8084:8084"
+    environment:
+      - OTEL_SERVICE_NAME=teams
+      - OTEL_TRACES_EXPORTER=otlp
+      - OTEL_METRICS_EXPORTER=none
+      - OTEL_LOGS_EXPORTER=none
+      - OTEL_EXPORTER_OTLP_TRACES_ENDPOINT=http://jaeger:4317
+    depends_on:
+      - jaeger
