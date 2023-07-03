@@ -1,0 +1,136 @@
+openapi: 3.0.1
+info:
+  title: OpenAPI definition
+  version: v0
+servers:
+  - url: 'http://localhost:8083'
+    description: Generated server url
+paths:
+  /matches:
+    get:
+      tags:
+        - match-controller
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Matches'
+          description: OK
+      operationId: findAll
+  '/matches/{id}':
+    get:
+      tags:
+        - match-controller
+      parameters:
+        - name: id
+          schema:
+            type: string
+          in: path
+          required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Match'
+          description: OK
+      operationId: findOne
+  '/matches/{id}/championship':
+    get:
+      tags:
+        - match-controller
+      parameters:
+        - name: id
+          schema:
+            type: string
+          in: path
+          required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Championship'
+          description: OK
+      operationId: findChampionship
+components:
+  schemas:
+    Embedded:
+      type: object
+      properties:
+        matches:
+          type: array
+          items:
+            $ref: '#/components/schemas/Match'
+    Link:
+      type: object
+      properties:
+        href:
+          type: string
+    MatchLinks:
+      type: object
+      properties:
+        self:
+          $ref: '#/components/schemas/Link'
+        match:
+          $ref: '#/components/schemas/Link'
+        championship:
+          $ref: '#/components/schemas/Link'
+    Match:
+      type: object
+      properties:
+        date:
+          type: string
+        status:
+          type: string
+        score_home:
+          $ref: '#/components/schemas/Score'
+        score_away:
+          $ref: '#/components/schemas/Score'
+        _links:
+          $ref: '#/components/schemas/MatchLinks'
+    Matches:
+      type: object
+      properties:
+        _embedded:
+          $ref: '#/components/schemas/Embedded'
+        _links:
+          $ref: '#/components/schemas/MatchesLinks'
+    MatchesLinks:
+      type: object
+      properties:
+        self:
+          $ref: '#/components/schemas/Link'
+    Championship:
+      type: object
+      properties:
+        name:
+          type: string
+        year:
+          format: int64
+          type: integer
+        _links:
+          $ref: '#/components/schemas/ChampionshipLinks'
+    Score:
+      type: object
+      properties:
+        goals:
+          format: int64
+          type: integer
+        _links:
+          $ref: '#/components/schemas/ScoreLinks'
+    ScoreLinks:
+      type: object
+      properties:
+        team:
+          $ref: '#/components/schemas/Link'
+    ChampionshipLinks:
+      type: object
+      properties:
+        self:
+          $ref: '#/components/schemas/Link'
+        championship:
+          $ref: '#/components/schemas/Link'
+        teams:
+          $ref: '#/components/schemas/Link'

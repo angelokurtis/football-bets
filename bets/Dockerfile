@@ -1,18 +1,24 @@
-FROM amazoncorretto:18.0.2 as build
+FROM golang:1.20 as builder
 
-COPY .mvn .mvn
-COPY mvnw .
-COPY pom.xml .
-COPY src src
-RUN --mount=type=cache,target=/root/.m2 ./mvnw -B package
+WORKDIR /go/src/app
+COPY go.mod go.mod
+COPY go.sum go.sum
 
-FROM amazoncorretto:18.0.2
+RUN go mod download
 
-ENV OTEL_AGENT_VERSION=1.27.0
-ENV JAVA_TOOL_OPTIONS="-javaagent:opentelemetry-javaagent.jar"
+COPY main.go main.go
+COPY internal/ internal/
+COPY docs/ docs/
 
-ADD https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases/download/v${OTEL_AGENT_VERSION}/opentelemetry-javaagent.jar .
-COPY --from=build target/bets-1.0.0.jar .
-EXPOSE 8081 9091
+RUN go generate ./...
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -o /go/bin/app main.go
 
-CMD ["java", "-jar", "bets-1.0.0.jar"]
+FROM gcr.io/distroless/static:nonroot
+
+WORKDIR /
+COPY --from=builder /go/bin/app .
+
+USER 65532:65532
+EXPOSE 8081/tcp
+
+CMD ["/app"]

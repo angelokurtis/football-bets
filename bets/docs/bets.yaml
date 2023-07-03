@@ -1,0 +1,102 @@
+openapi: 3.0.1
+info:
+  title: OpenAPI definition
+  version: v0
+servers:
+- url: http://localhost:8081
+  description: Generated server url
+paths:
+  /bets:
+    post:
+      tags:
+      - bet-controller
+      operationId: create
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Bet'
+components:
+  schemas:
+    Bet:
+      type: object
+      properties:
+        championship:
+          $ref: '#/components/schemas/Championship'
+        _links:
+          $ref: '#/components/schemas/BetLinks'
+        date:
+          type: string
+        score_away:
+          $ref: '#/components/schemas/Score'
+        score_home:
+          $ref: '#/components/schemas/Score'
+        status:
+          type: string
+    BetLinks:
+      type: object
+      properties:
+        match:
+          $ref: '#/components/schemas/Link'
+    Championship:
+      type: object
+      properties:
+        _links:
+          $ref: '#/components/schemas/ChampionshipLinks'
+        name:
+          type: string
+        year:
+          type: integer
+          format: int64
+    ChampionshipLinks:
+      type: object
+      properties:
+        championship:
+          $ref: '#/components/schemas/Link'
+        self:
+          $ref: '#/components/schemas/Link'
+        teams:
+          $ref: '#/components/schemas/Link'
+    Link:
+      type: object
+      properties:
+        href:
+          type: string
+    Score:
+      type: object
+      properties:
+        goals:
+          type: integer
+          format: int64
+        bet:
+          type: integer
+          format: int64
+        team:
+          $ref: '#/components/schemas/Team'
+        _links:
+          $ref: '#/components/schemas/ScoreLinks'
+    ScoreLinks:
+      type: object
+      properties:
+        team:
+          $ref: '#/components/schemas/Link'
+    Team:
+      type: object
+      properties:
+        _links:
+          $ref: '#/components/schemas/TeamLinks'
+        name:
+          type: string
+    TeamLinks:
+      type: object
+      properties:
+        championships:
+          $ref: '#/components/schemas/Link'
+        matches:
+          $ref: '#/components/schemas/Link'
+        self:
+          $ref: '#/components/schemas/Link'
+        team:
+          $ref: '#/components/schemas/Link'

@@ -1,0 +1,84 @@
+openapi: 3.0.1
+info:
+  title: OpenAPI definition
+  version: v0
+servers:
+- url: http://localhost:8084
+  description: Generated server url
+paths:
+  /teams:
+    get:
+      tags:
+      - team-controller
+      operationId: findAll
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Teams'
+  /teams/{id}:
+    get:
+      tags:
+      - team-controller
+      operationId: findOne
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Team'
+components:
+  schemas:
+    Embedded:
+      type: object
+      properties:
+        teams:
+          type: array
+          items:
+            $ref: '#/components/schemas/Team'
+    Link:
+      type: object
+      properties:
+        href:
+          type: string
+    Links:
+      type: object
+      properties:
+        self:
+          $ref: '#/components/schemas/Link'
+        team:
+          $ref: '#/components/schemas/Link'
+        matches:
+          $ref: '#/components/schemas/Link'
+        championships:
+          $ref: '#/components/schemas/Link'
+    Team:
+      type: object
+      properties:
+        name:
+          type: string
+        image_url:
+          type: string
+        _links:
+          $ref: '#/components/schemas/Links'
+    Teams:
+      type: object
+      properties:
+        _embedded:
+          $ref: '#/components/schemas/Embedded'
+        _links:
+          $ref: '#/components/schemas/TeamsLinks'
+    TeamsLinks:
+      type: object
+      properties:
+        self:
+          $ref: '#/components/schemas/Link'
