@@ -9,7 +9,7 @@ RUN --mount=type=cache,target=/root/.m2 ./mvnw -B package
 FROM amazoncorretto:18.0.2
 
 ENV TEAMS_JSON_PATH=teams.json
-ENV OTEL_AGENT_VERSION=1.27.0
+ENV OTEL_AGENT_VERSION=1.31.0
 ENV JAVA_TOOL_OPTIONS="-javaagent:opentelemetry-javaagent.jar"
 
 ADD https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases/download/v${OTEL_AGENT_VERSION}/opentelemetry-javaagent.jar .
