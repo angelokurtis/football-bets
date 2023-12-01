@@ -6,11 +6,10 @@ import (
 	"net/http"
 	"regexp"
 
+	"github.com/angelokurtis/go-otel/span"
 	"github.com/gin-gonic/gin"
-	"go.opentelemetry.io/otel/codes"
 
 	"github.com/angelokurtis/football-bets/bets/internal/matches"
-	"github.com/angelokurtis/football-bets/bets/internal/otel"
 	"github.com/angelokurtis/football-bets/bets/internal/teams"
 )
 
@@ -24,13 +23,12 @@ func NewBets(matchesClient matches.ClientWithResponsesInterface, teamsClient tea
 }
 
 func (s *Bets) Create(c *gin.Context) {
-	ctx, span := otel.StartSpanFromGinContext(c)
-	defer span.End()
+	ctx, end := span.Start(c.Request.Context())
+	defer end()
 
 	matchRes, err := s.matchesClient.FindAllWithResponse(ctx)
 	if err != nil {
-		span.RecordError(err)
-		span.SetStatus(codes.Error, err.Error())
+		_ = span.Error(ctx, err)
 		_ = c.AbortWithError(http.StatusServiceUnavailable, err)
 
 		return
@@ -42,8 +40,7 @@ func (s *Bets) Create(c *gin.Context) {
 
 	homeTeamID, err := extractTeamId(match.ScoreHome.Links)
 	if err != nil {
-		span.RecordError(err)
-		span.SetStatus(codes.Error, err.Error())
+		_ = span.Error(ctx, err)
 		_ = c.AbortWithError(http.StatusInternalServerError, err)
 
 		return
@@ -51,8 +48,7 @@ func (s *Bets) Create(c *gin.Context) {
 
 	awayTeamID, err := extractTeamId(match.ScoreAway.Links)
 	if err != nil {
-		span.RecordError(err)
-		span.SetStatus(codes.Error, err.Error())
+		_ = span.Error(ctx, err)
 		_ = c.AbortWithError(http.StatusInternalServerError, err)
 
 		return
@@ -60,8 +56,7 @@ func (s *Bets) Create(c *gin.Context) {
 
 	homeTeamRes, err := s.teamsClient.FindOneWithResponse(ctx, homeTeamID)
 	if err != nil {
-		span.RecordError(err)
-		span.SetStatus(codes.Error, err.Error())
+		_ = span.Error(ctx, err)
 		_ = c.AbortWithError(http.StatusServiceUnavailable, err)
 
 		return
@@ -69,8 +64,7 @@ func (s *Bets) Create(c *gin.Context) {
 
 	awayTeamRes, err := s.teamsClient.FindOneWithResponse(ctx, awayTeamID)
 	if err != nil {
-		span.RecordError(err)
-		span.SetStatus(codes.Error, err.Error())
+		_ = span.Error(ctx, err)
 		_ = c.AbortWithError(http.StatusServiceUnavailable, err)
 
 		return
@@ -78,8 +72,7 @@ func (s *Bets) Create(c *gin.Context) {
 
 	matchID, err := extractMatchId(match.Links)
 	if err != nil {
-		span.RecordError(err)
-		span.SetStatus(codes.Error, err.Error())
+		_ = span.Error(ctx, err)
 		_ = c.AbortWithError(http.StatusInternalServerError, err)
 
 		return
@@ -87,8 +80,7 @@ func (s *Bets) Create(c *gin.Context) {
 
 	championshipRes, err := s.matchesClient.FindChampionshipWithResponse(ctx, matchID)
 	if err != nil {
-		span.RecordError(err)
-		span.SetStatus(codes.Error, err.Error())
+		_ = span.Error(ctx, err)
 		_ = c.AbortWithError(http.StatusInternalServerError, err)
 
 		return

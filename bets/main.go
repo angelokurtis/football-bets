@@ -1,8 +1,8 @@
-//go:generate go run -mod=mod github.com/deepmap/oapi-codegen/cmd/oapi-codegen@v1.13.0 -generate gin,spec -package bets -o internal/bets/server.go docs/bets.yaml
-//go:generate go run -mod=mod github.com/deepmap/oapi-codegen/cmd/oapi-codegen@v1.13.0 -generate client -package matches -o internal/matches/client.go docs/matches.yaml
-//go:generate go run -mod=mod github.com/deepmap/oapi-codegen/cmd/oapi-codegen@v1.13.0 -generate types -package matches -o internal/matches/types.go docs/matches.yaml
-//go:generate go run -mod=mod github.com/deepmap/oapi-codegen/cmd/oapi-codegen@v1.13.0 -generate client -package teams -o internal/teams/client.go docs/teams.yaml
-//go:generate go run -mod=mod github.com/deepmap/oapi-codegen/cmd/oapi-codegen@v1.13.0 -generate types -package teams -o internal/teams/types.go docs/teams.yaml
+//go:generate go run -mod=mod github.com/deepmap/oapi-codegen/v2/cmd/oapi-codegen@v2.0.0 -generate gin,spec -package bets -o internal/bets/server.go docs/bets.yaml
+//go:generate go run -mod=mod github.com/deepmap/oapi-codegen/v2/cmd/oapi-codegen@v2.0.0 -generate client -package matches -o internal/matches/client.go docs/matches.yaml
+//go:generate go run -mod=mod github.com/deepmap/oapi-codegen/v2/cmd/oapi-codegen@v2.0.0 -generate types -package matches -o internal/matches/types.go docs/matches.yaml
+//go:generate go run -mod=mod github.com/deepmap/oapi-codegen/v2/cmd/oapi-codegen@v2.0.0 -generate client -package teams -o internal/teams/client.go docs/teams.yaml
+//go:generate go run -mod=mod github.com/deepmap/oapi-codegen/v2/cmd/oapi-codegen@v2.0.0 -generate types -package teams -o internal/teams/types.go docs/teams.yaml
 
 package main
 
@@ -11,6 +11,7 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/angelokurtis/go-otel/starter"
 	"github.com/gin-gonic/gin"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 
@@ -18,23 +19,22 @@ import (
 	"github.com/angelokurtis/football-bets/bets/internal/handler"
 	"github.com/angelokurtis/football-bets/bets/internal/httpclient"
 	"github.com/angelokurtis/football-bets/bets/internal/matches"
-	"github.com/angelokurtis/football-bets/bets/internal/otel"
 	"github.com/angelokurtis/football-bets/bets/internal/teams"
 )
 
 func main() {
 	ctx := context.Background()
 
-	tp, err := otel.Init(ctx)
+	_, shutdown, err := starter.StartProviders(ctx)
+	defer shutdown()
+
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	defer func() { _ = tp.Shutdown(ctx) }()
-
 	var (
 		router     = gin.Default()
-		httpClient = httpclient.New(otel.NewTransport())
+		httpClient = httpclient.New(otelhttp.NewTransport(http.DefaultTransport))
 	)
 
 	matchesClient, err := matches.NewClientWithHTTPClient(httpClient)
@@ -49,7 +49,9 @@ func main() {
 
 	bets.RegisterHandlersWithOptions(router, handler.NewBets(matchesClient, teamsClient), bets.GinServerOptions{BaseURL: ""})
 	log.Fatal((&http.Server{
-		Addr:    ":8081",
-		Handler: otelhttp.NewHandler(router, "", otelhttp.WithSpanNameFormatter(otel.SpanFormatter)),
+		Addr: ":8081",
+		Handler: otelhttp.NewHandler(router, "", otelhttp.WithSpanNameFormatter(func(_ string, r *http.Request) string {
+			return r.Method + " " + r.URL.Path
+		})),
 	}).ListenAndServe())
 }
