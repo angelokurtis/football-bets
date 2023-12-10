@@ -2,12 +2,14 @@ package handler
 
 import (
 	"fmt"
+	"log/slog"
 	"math/rand"
 	"net/http"
 	"regexp"
 
 	"github.com/angelokurtis/go-otel/span"
 	"github.com/gin-gonic/gin"
+	"github.com/lmittmann/tint"
 
 	"github.com/angelokurtis/football-bets/bets/internal/matches"
 	"github.com/angelokurtis/football-bets/bets/internal/teams"
@@ -26,8 +28,11 @@ func (s *Bets) Create(c *gin.Context) {
 	ctx, end := span.Start(c.Request.Context())
 	defer end()
 
+	slog.Info("Create handler started")
+
 	matchRes, err := s.matchesClient.FindAllWithResponse(ctx)
 	if err != nil {
+		slog.Error("Error fetching matches", tint.Err(err))
 		_ = span.Error(ctx, err)
 		_ = c.AbortWithError(http.StatusServiceUnavailable, err)
 
@@ -40,6 +45,7 @@ func (s *Bets) Create(c *gin.Context) {
 
 	homeTeamID, err := extractTeamId(match.ScoreHome.Links)
 	if err != nil {
+		slog.Error("Error extracting home team ID", tint.Err(err))
 		_ = span.Error(ctx, err)
 		_ = c.AbortWithError(http.StatusInternalServerError, err)
 
@@ -48,6 +54,7 @@ func (s *Bets) Create(c *gin.Context) {
 
 	awayTeamID, err := extractTeamId(match.ScoreAway.Links)
 	if err != nil {
+		slog.Error("Error extracting away team ID", tint.Err(err))
 		_ = span.Error(ctx, err)
 		_ = c.AbortWithError(http.StatusInternalServerError, err)
 
@@ -56,6 +63,7 @@ func (s *Bets) Create(c *gin.Context) {
 
 	homeTeamRes, err := s.teamsClient.FindOneWithResponse(ctx, homeTeamID)
 	if err != nil {
+		slog.Error("Error fetching home team details", tint.Err(err))
 		_ = span.Error(ctx, err)
 		_ = c.AbortWithError(http.StatusServiceUnavailable, err)
 
@@ -64,6 +72,7 @@ func (s *Bets) Create(c *gin.Context) {
 
 	awayTeamRes, err := s.teamsClient.FindOneWithResponse(ctx, awayTeamID)
 	if err != nil {
+		slog.Error("Error fetching away team details", tint.Err(err))
 		_ = span.Error(ctx, err)
 		_ = c.AbortWithError(http.StatusServiceUnavailable, err)
 
@@ -72,6 +81,7 @@ func (s *Bets) Create(c *gin.Context) {
 
 	matchID, err := extractMatchId(match.Links)
 	if err != nil {
+		slog.Error("Error extracting match ID", tint.Err(err))
 		_ = span.Error(ctx, err)
 		_ = c.AbortWithError(http.StatusInternalServerError, err)
 
@@ -80,11 +90,14 @@ func (s *Bets) Create(c *gin.Context) {
 
 	championshipRes, err := s.matchesClient.FindChampionshipWithResponse(ctx, matchID)
 	if err != nil {
+		slog.Error("Error fetching championship details", tint.Err(err))
 		_ = span.Error(ctx, err)
 		_ = c.AbortWithError(http.StatusInternalServerError, err)
 
 		return
 	}
+
+	slog.Info("Data retrieval successful, creating response")
 
 	c.JSON(
 		http.StatusOK,
