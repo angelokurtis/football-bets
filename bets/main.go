@@ -8,11 +8,14 @@ package main
 
 import (
 	"context"
-	"log"
+	"log/slog"
 	"net/http"
+	"os"
+	"time"
 
 	"github.com/angelokurtis/go-otel/starter"
 	"github.com/gin-gonic/gin"
+	"github.com/lmittmann/tint"
 	"go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 
@@ -23,6 +26,15 @@ import (
 	"github.com/angelokurtis/football-bets/bets/internal/teams"
 )
 
+func init() {
+	logger := slog.New(tint.NewHandler(os.Stderr, &tint.Options{
+		AddSource:  true,
+		Level:      slog.LevelDebug,
+		TimeFormat: time.Kitchen,
+	}))
+	slog.SetDefault(logger)
+}
+
 func main() {
 	ctx := context.Background()
 
@@ -30,8 +42,11 @@ func main() {
 	defer shutdown()
 
 	if err != nil {
-		log.Fatal(err)
+		slog.Error("Error starting OpenTelemetry providers", tint.Err(err))
+		return
 	}
+
+	slog.Info("Starting application...")
 
 	var (
 		router     = gin.Default()
@@ -40,19 +55,30 @@ func main() {
 
 	matchesClient, err := matches.NewClientWithHTTPClient(httpClient)
 	if err != nil {
-		log.Fatal(err)
+		slog.Error("Error creating matches client", tint.Err(err))
+		return
 	}
 
 	teamsClient, err := teams.NewClientWithHTTPClient(httpClient)
 	if err != nil {
-		log.Fatal(err)
+		slog.Error("Error creating teams client", tint.Err(err))
+		return
 	}
 
 	router.Use(otelgin.Middleware(""))
 
 	bets.RegisterHandlersWithOptions(router, handler.NewBets(matchesClient, teamsClient), bets.GinServerOptions{BaseURL: ""})
-	log.Fatal((&http.Server{
-		Addr:    ":8081",
+
+	addr := ":8081"
+	slog.Info("Starting server", slog.String("addr", addr))
+
+	if err = (&http.Server{
+		Addr:    addr,
 		Handler: router,
-	}).ListenAndServe())
+	}).ListenAndServe(); err != nil {
+		slog.Error("Error starting HTTP server", tint.Err(err))
+		return
+	}
+
+	slog.Info("Application stopped")
 }
