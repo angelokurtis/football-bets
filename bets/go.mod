@@ -7,6 +7,7 @@ require (
 	github.com/angelokurtis/go-otel/starter v1.0.1
 	github.com/getkin/kin-openapi v0.122.0
 	github.com/gin-gonic/gin v1.9.1
+	github.com/lmittmann/tint v1.0.3
 	github.com/oapi-codegen/runtime v1.1.0
 	go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin v0.46.1
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.46.1
