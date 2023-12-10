@@ -13,6 +13,7 @@ import (
 
 	"github.com/angelokurtis/go-otel/starter"
 	"github.com/gin-gonic/gin"
+	"go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 
 	"github.com/angelokurtis/football-bets/bets/internal/bets"
@@ -47,11 +48,11 @@ func main() {
 		log.Fatal(err)
 	}
 
+	router.Use(otelgin.Middleware(""))
+
 	bets.RegisterHandlersWithOptions(router, handler.NewBets(matchesClient, teamsClient), bets.GinServerOptions{BaseURL: ""})
 	log.Fatal((&http.Server{
-		Addr: ":8081",
-		Handler: otelhttp.NewHandler(router, "", otelhttp.WithSpanNameFormatter(func(_ string, r *http.Request) string {
-			return r.Method + " " + r.URL.Path
-		})),
+		Addr:    ":8081",
+		Handler: router,
 	}).ListenAndServe())
 }
