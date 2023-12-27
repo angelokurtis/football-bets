@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"context"
 	"fmt"
 	"log/slog"
 	"math/rand"
@@ -30,7 +31,7 @@ func (s *Bets) Create(c *gin.Context) {
 
 	slog.Info("Create handler started")
 
-	matchRes, err := s.matchesClient.FindAllWithResponse(ctx)
+	matchRes, err := s.findMatches(ctx)
 	if err != nil {
 		slog.Error("Error fetching matches", tint.Err(err))
 		_ = span.Error(ctx, err)
@@ -39,11 +40,9 @@ func (s *Bets) Create(c *gin.Context) {
 		return
 	}
 
-	matchList := *matchRes.JSON200.Embedded.Matches
-	index := rand.Intn(len(matchList))
-	match := &matchList[index]
+	match := s.randomMatch(ctx, matchRes)
 
-	homeTeamID, err := extractTeamId(match.ScoreHome.Links)
+	homeTeamID, err := extractTeamId(ctx, match.ScoreHome.Links)
 	if err != nil {
 		slog.Error("Error extracting home team ID", tint.Err(err))
 		_ = span.Error(ctx, err)
@@ -52,7 +51,7 @@ func (s *Bets) Create(c *gin.Context) {
 		return
 	}
 
-	awayTeamID, err := extractTeamId(match.ScoreAway.Links)
+	awayTeamID, err := extractTeamId(ctx, match.ScoreAway.Links)
 	if err != nil {
 		slog.Error("Error extracting away team ID", tint.Err(err))
 		_ = span.Error(ctx, err)
@@ -61,7 +60,7 @@ func (s *Bets) Create(c *gin.Context) {
 		return
 	}
 
-	homeTeamRes, err := s.teamsClient.FindOneWithResponse(ctx, homeTeamID)
+	homeTeamRes, err := s.findTeam(ctx, homeTeamID)
 	if err != nil {
 		slog.Error("Error fetching home team details", tint.Err(err))
 		_ = span.Error(ctx, err)
@@ -70,7 +69,7 @@ func (s *Bets) Create(c *gin.Context) {
 		return
 	}
 
-	awayTeamRes, err := s.teamsClient.FindOneWithResponse(ctx, awayTeamID)
+	awayTeamRes, err := s.findTeam(ctx, awayTeamID)
 	if err != nil {
 		slog.Error("Error fetching away team details", tint.Err(err))
 		_ = span.Error(ctx, err)
@@ -79,7 +78,7 @@ func (s *Bets) Create(c *gin.Context) {
 		return
 	}
 
-	matchID, err := extractMatchId(match.Links)
+	matchID, err := extractMatchId(ctx, match.Links)
 	if err != nil {
 		slog.Error("Error extracting match ID", tint.Err(err))
 		_ = span.Error(ctx, err)
@@ -88,7 +87,7 @@ func (s *Bets) Create(c *gin.Context) {
 		return
 	}
 
-	championshipRes, err := s.matchesClient.FindChampionshipWithResponse(ctx, matchID)
+	championshipRes, err := s.findMatch(ctx, matchID)
 	if err != nil {
 		slog.Error("Error fetching championship details", tint.Err(err))
 		_ = span.Error(ctx, err)
@@ -97,6 +96,7 @@ func (s *Bets) Create(c *gin.Context) {
 		return
 	}
 
+	span.Event(ctx, "Data retrieval successful")
 	slog.Info("Data retrieval successful, creating response")
 
 	c.JSON(
@@ -120,7 +120,36 @@ func (s *Bets) Create(c *gin.Context) {
 	)
 }
 
-func extractTeamId(links *matches.ScoreLinks) (string, error) {
+func (s *Bets) findMatch(ctx context.Context, matchID string) (*matches.FindChampionshipResponse, error) {
+	ctx, end := span.Start(ctx)
+	defer end()
+
+	return s.matchesClient.FindChampionshipWithResponse(ctx, matchID)
+}
+
+func (s *Bets) findTeam(ctx context.Context, homeTeamID string) (*teams.FindOneResponse, error) {
+	ctx, end := span.Start(ctx)
+	defer end()
+
+	return s.teamsClient.FindOneWithResponse(ctx, homeTeamID)
+}
+
+func (s *Bets) findMatches(ctx context.Context) (*matches.FindAllResponse, error) {
+	ctx, end := span.Start(ctx)
+	defer end()
+
+	return s.matchesClient.FindAllWithResponse(ctx)
+}
+
+func (s *Bets) randomMatch(ctx context.Context, matchRes *matches.FindAllResponse) *matches.Match {
+	matchList := *matchRes.JSON200.Embedded.Matches
+	index := rand.Intn(len(matchList))
+	match := &matchList[index]
+
+	return match
+}
+
+func extractTeamId(ctx context.Context, links *matches.ScoreLinks) (string, error) {
 	href := *links.Team.Href
 	regex := regexp.MustCompile(`/teams/(.+)`)
 
@@ -132,7 +161,7 @@ func extractTeamId(links *matches.ScoreLinks) (string, error) {
 	return found[1], nil
 }
 
-func extractMatchId(link *matches.MatchLinks) (string, error) {
+func extractMatchId(ctx context.Context, link *matches.MatchLinks) (string, error) {
 	href := *link.Self.Href
 	regex := regexp.MustCompile(`/matches/(.+)`)
 
@@ -145,8 +174,8 @@ func extractMatchId(link *matches.MatchLinks) (string, error) {
 }
 
 func bet() int {
-	min := 0
-	max := 5
+	minimum := 0
+	maximum := 5
 
-	return rand.Intn(max-min) + min
+	return rand.Intn(maximum-minimum) + minimum
 }
