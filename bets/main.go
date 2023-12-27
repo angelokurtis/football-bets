@@ -13,11 +13,15 @@ import (
 	"os"
 	"time"
 
+	"github.com/angelokurtis/go-otel/span"
 	"github.com/angelokurtis/go-otel/starter"
 	"github.com/gin-gonic/gin"
 	"github.com/lmittmann/tint"
-	"go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/propagation"
+	semconv "go.opentelemetry.io/otel/semconv/v1.21.0"
+	oteltrace "go.opentelemetry.io/otel/trace"
 
 	"github.com/angelokurtis/football-bets/bets/internal/bets"
 	"github.com/angelokurtis/football-bets/bets/internal/handler"
@@ -65,7 +69,29 @@ func main() {
 		return
 	}
 
-	router.Use(otelgin.Middleware(""))
+	router.Use(func(c *gin.Context) {
+		req := c.Request
+		reqCtx := otel.GetTextMapPropagator().Extract(req.Context(), propagation.HeaderCarrier(c.Request.Header))
+
+		reqCtx, end := span.StartWithName(reqCtx, req.Method+" "+c.FullPath(),
+			oteltrace.WithSpanKind(oteltrace.SpanKindServer),
+		)
+		defer end()
+
+		// pass the span through the request context
+		c.Request = c.Request.WithContext(reqCtx)
+
+		// serve the request to the next middleware
+		c.Next()
+
+		span.Attributes(reqCtx,
+			semconv.HTTPMethod(req.Method),
+			semconv.HTTPRoute(c.FullPath()),
+			semconv.HTTPScheme("http"),
+			semconv.HTTPStatusCode(c.Writer.Status()),
+			semconv.HTTPTarget(req.URL.Path),
+		)
+	})
 
 	bets.RegisterHandlersWithOptions(router, handler.NewBets(matchesClient, teamsClient), bets.GinServerOptions{BaseURL: ""})
 
