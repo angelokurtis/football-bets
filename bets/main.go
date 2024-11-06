@@ -17,7 +17,6 @@ import (
 	"github.com/angelokurtis/go-otel/starter"
 	"github.com/gin-gonic/gin"
 	"github.com/lmittmann/tint"
-	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/propagation"
 	semconv "go.opentelemetry.io/otel/semconv/v1.21.0"
@@ -54,7 +53,7 @@ func main() {
 
 	var (
 		router     = gin.Default()
-		httpClient = httpclient.New(otelhttp.NewTransport(http.DefaultTransport))
+		httpClient = httpclient.New()
 	)
 
 	matchesClient, err := matches.NewClientWithHTTPClient(httpClient)
