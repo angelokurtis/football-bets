@@ -2,6 +2,7 @@ package handler
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"log/slog"
 	"math/rand"
@@ -9,12 +10,13 @@ import (
 	"regexp"
 
 	"github.com/angelokurtis/go-otel/span"
-	"github.com/gin-gonic/gin"
 	"github.com/lmittmann/tint"
 
 	"github.com/angelokurtis/football-bets/bets/internal/matches"
 	"github.com/angelokurtis/football-bets/bets/internal/teams"
 )
+
+type JSONNode map[string]any
 
 type Bets struct {
 	matchesClient matches.ClientWithResponsesInterface
@@ -25,8 +27,8 @@ func NewBets(matchesClient matches.ClientWithResponsesInterface, teamsClient tea
 	return &Bets{matchesClient: matchesClient, teamsClient: teamsClient}
 }
 
-func (s *Bets) Create(c *gin.Context) {
-	ctx, end := span.Start(c.Request.Context())
+func (s *Bets) Create(w http.ResponseWriter, r *http.Request) {
+	ctx, end := span.Start(r.Context())
 	defer end()
 
 	slog.Info("Create handler started")
@@ -35,7 +37,8 @@ func (s *Bets) Create(c *gin.Context) {
 	if err != nil {
 		slog.Error("Error fetching matches", tint.Err(err))
 		_ = span.Error(ctx, err)
-		_ = c.AbortWithError(http.StatusServiceUnavailable, err)
+
+		w.WriteHeader(http.StatusServiceUnavailable)
 
 		return
 	}
@@ -46,7 +49,8 @@ func (s *Bets) Create(c *gin.Context) {
 	if err != nil {
 		slog.Error("Error extracting home team ID", tint.Err(err))
 		_ = span.Error(ctx, err)
-		_ = c.AbortWithError(http.StatusInternalServerError, err)
+
+		w.WriteHeader(http.StatusServiceUnavailable)
 
 		return
 	}
@@ -55,7 +59,8 @@ func (s *Bets) Create(c *gin.Context) {
 	if err != nil {
 		slog.Error("Error extracting away team ID", tint.Err(err))
 		_ = span.Error(ctx, err)
-		_ = c.AbortWithError(http.StatusInternalServerError, err)
+
+		w.WriteHeader(http.StatusInternalServerError)
 
 		return
 	}
@@ -64,7 +69,8 @@ func (s *Bets) Create(c *gin.Context) {
 	if err != nil {
 		slog.Error("Error fetching home team details", tint.Err(err))
 		_ = span.Error(ctx, err)
-		_ = c.AbortWithError(http.StatusServiceUnavailable, err)
+
+		w.WriteHeader(http.StatusServiceUnavailable)
 
 		return
 	}
@@ -73,7 +79,8 @@ func (s *Bets) Create(c *gin.Context) {
 	if err != nil {
 		slog.Error("Error fetching away team details", tint.Err(err))
 		_ = span.Error(ctx, err)
-		_ = c.AbortWithError(http.StatusServiceUnavailable, err)
+
+		w.WriteHeader(http.StatusServiceUnavailable)
 
 		return
 	}
@@ -82,7 +89,8 @@ func (s *Bets) Create(c *gin.Context) {
 	if err != nil {
 		slog.Error("Error extracting match ID", tint.Err(err))
 		_ = span.Error(ctx, err)
-		_ = c.AbortWithError(http.StatusInternalServerError, err)
+
+		w.WriteHeader(http.StatusInternalServerError)
 
 		return
 	}
@@ -91,7 +99,8 @@ func (s *Bets) Create(c *gin.Context) {
 	if err != nil {
 		slog.Error("Error fetching championship details", tint.Err(err))
 		_ = span.Error(ctx, err)
-		_ = c.AbortWithError(http.StatusInternalServerError, err)
+
+		w.WriteHeader(http.StatusInternalServerError)
 
 		return
 	}
@@ -99,25 +108,24 @@ func (s *Bets) Create(c *gin.Context) {
 	span.Event(ctx, "Data retrieval successful")
 	slog.Info("Data retrieval successful, creating response")
 
-	c.JSON(
-		http.StatusOK,
-		gin.H{
-			"championship": championshipRes.JSON200,
-			"date":         match.Date,
-			"score_home": gin.H{
-				"goals": match.ScoreHome.Goals,
-				"bet":   bet(),
-				"team":  homeTeamRes.JSON200,
-			},
-			"score_away": gin.H{
-				"goals": match.ScoreAway.Goals,
-				"bet":   bet(),
-				"team":  awayTeamRes.JSON200,
-			},
-			"status": match.Status,
-			"_links": gin.H{"match": match.Links.Match},
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	_ = json.NewEncoder(w).Encode(JSONNode{
+		"championship": championshipRes.JSON200,
+		"date":         match.Date,
+		"score_home": JSONNode{
+			"goals": match.ScoreHome.Goals,
+			"bet":   bet(),
+			"team":  homeTeamRes.JSON200,
 		},
-	)
+		"score_away": JSONNode{
+			"goals": match.ScoreAway.Goals,
+			"bet":   bet(),
+			"team":  awayTeamRes.JSON200,
+		},
+		"status": match.Status,
+		"_links": JSONNode{"match": match.Links.Match},
+	})
 }
 
 func (s *Bets) findMatch(ctx context.Context, matchID string) (*matches.FindChampionshipResponse, error) {

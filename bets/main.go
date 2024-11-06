@@ -1,4 +1,4 @@
-//go:generate go run -mod=mod github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen@v2.4.1 -generate gin,spec -package bets -o internal/bets/server.go docs/bets.yaml
+//go:generate go run -mod=mod github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen@v2.4.1 -generate std-http,spec -package bets -o internal/bets/server.go docs/bets.yaml
 //go:generate go run -mod=mod github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen@v2.4.1 -generate client -package matches -o internal/matches/client.go docs/matches.yaml
 //go:generate go run -mod=mod github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen@v2.4.1 -generate types -package matches -o internal/matches/types.go docs/matches.yaml
 //go:generate go run -mod=mod github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen@v2.4.1 -generate client -package teams -o internal/teams/client.go docs/teams.yaml
@@ -13,19 +13,15 @@ import (
 	"os"
 	"time"
 
-	"github.com/angelokurtis/go-otel/span"
 	"github.com/angelokurtis/go-otel/starter"
-	"github.com/gin-gonic/gin"
 	"github.com/lmittmann/tint"
-	"go.opentelemetry.io/otel"
-	"go.opentelemetry.io/otel/propagation"
-	semconv "go.opentelemetry.io/otel/semconv/v1.21.0"
-	oteltrace "go.opentelemetry.io/otel/trace"
+	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 
 	"github.com/angelokurtis/football-bets/bets/internal/bets"
 	"github.com/angelokurtis/football-bets/bets/internal/handler"
 	"github.com/angelokurtis/football-bets/bets/internal/httpclient"
 	"github.com/angelokurtis/football-bets/bets/internal/matches"
+	"github.com/angelokurtis/football-bets/bets/internal/otel"
 	"github.com/angelokurtis/football-bets/bets/internal/teams"
 )
 
@@ -51,10 +47,7 @@ func main() {
 
 	slog.Info("Starting application...")
 
-	var (
-		router     = gin.Default()
-		httpClient = httpclient.New()
-	)
+	httpClient := httpclient.New()
 
 	matchesClient, err := matches.NewClientWithHTTPClient(httpClient)
 	if err != nil {
@@ -68,38 +61,21 @@ func main() {
 		return
 	}
 
-	router.Use(func(c *gin.Context) {
-		req := c.Request
-		reqCtx := otel.GetTextMapPropagator().Extract(req.Context(), propagation.HeaderCarrier(c.Request.Header))
-
-		reqCtx, end := span.StartWithName(reqCtx, req.Method+" "+c.FullPath(),
-			oteltrace.WithSpanKind(oteltrace.SpanKindServer),
-		)
-		defer end()
-
-		// pass the span through the request context
-		c.Request = c.Request.WithContext(reqCtx)
-
-		// serve the request to the next middleware
-		c.Next()
-
-		span.Attributes(reqCtx,
-			semconv.HTTPMethod(req.Method),
-			semconv.HTTPRoute(c.FullPath()),
-			semconv.HTTPScheme("http"),
-			semconv.HTTPStatusCode(c.Writer.Status()),
-			semconv.HTTPTarget(req.URL.Path),
-		)
-	})
-
-	bets.RegisterHandlersWithOptions(router, handler.NewBets(matchesClient, teamsClient), bets.GinServerOptions{BaseURL: ""})
+	h := otelhttp.NewHandler(
+		bets.HandlerFromMux(
+			handler.NewBets(matchesClient, teamsClient),
+			http.NewServeMux(),
+		),
+		"",
+		otelhttp.WithSpanNameFormatter(otel.FormatSpanName),
+	)
 
 	addr := ":8081"
 	slog.Info("Starting server", slog.String("addr", addr))
 
 	if err = (&http.Server{
 		Addr:    addr,
-		Handler: router,
+		Handler: h,
 	}).ListenAndServe(); err != nil {
 		slog.Error("Error starting HTTP server", tint.Err(err))
 		return
