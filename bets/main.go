@@ -1,8 +1,8 @@
-//go:generate go run -mod=mod github.com/deepmap/oapi-codegen/v2/cmd/oapi-codegen@v2.0.0 -generate gin,spec -package bets -o internal/bets/server.go docs/bets.yaml
-//go:generate go run -mod=mod github.com/deepmap/oapi-codegen/v2/cmd/oapi-codegen@v2.0.0 -generate client -package matches -o internal/matches/client.go docs/matches.yaml
-//go:generate go run -mod=mod github.com/deepmap/oapi-codegen/v2/cmd/oapi-codegen@v2.0.0 -generate types -package matches -o internal/matches/types.go docs/matches.yaml
-//go:generate go run -mod=mod github.com/deepmap/oapi-codegen/v2/cmd/oapi-codegen@v2.0.0 -generate client -package teams -o internal/teams/client.go docs/teams.yaml
-//go:generate go run -mod=mod github.com/deepmap/oapi-codegen/v2/cmd/oapi-codegen@v2.0.0 -generate types -package teams -o internal/teams/types.go docs/teams.yaml
+//go:generate go run -mod=mod github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen@v2.4.1 -generate gin,spec -package bets -o internal/bets/server.go docs/bets.yaml
+//go:generate go run -mod=mod github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen@v2.4.1 -generate client -package matches -o internal/matches/client.go docs/matches.yaml
+//go:generate go run -mod=mod github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen@v2.4.1 -generate types -package matches -o internal/matches/types.go docs/matches.yaml
+//go:generate go run -mod=mod github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen@v2.4.1 -generate client -package teams -o internal/teams/client.go docs/teams.yaml
+//go:generate go run -mod=mod github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen@v2.4.1 -generate types -package teams -o internal/teams/types.go docs/teams.yaml
 
 package main
 
