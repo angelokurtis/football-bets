@@ -31,11 +31,11 @@ func (s *Bets) Create(w http.ResponseWriter, r *http.Request) {
 	ctx, end := span.Start(r.Context())
 	defer end()
 
-	slog.Info("Create handler started")
+	slog.InfoContext(ctx, "Create handler started")
 
 	matchRes, err := s.findMatches(ctx)
 	if err != nil {
-		slog.Error("Error fetching matches", tint.Err(err))
+		slog.ErrorContext(ctx, "Error fetching matches", tint.Err(err))
 		_ = span.Error(ctx, err)
 
 		w.WriteHeader(http.StatusServiceUnavailable)
@@ -47,7 +47,7 @@ func (s *Bets) Create(w http.ResponseWriter, r *http.Request) {
 
 	homeTeamID, err := extractTeamId(ctx, match.ScoreHome.Links)
 	if err != nil {
-		slog.Error("Error extracting home team ID", tint.Err(err))
+		slog.ErrorContext(ctx, "Error extracting home team ID", tint.Err(err))
 		_ = span.Error(ctx, err)
 
 		w.WriteHeader(http.StatusServiceUnavailable)
@@ -57,7 +57,7 @@ func (s *Bets) Create(w http.ResponseWriter, r *http.Request) {
 
 	awayTeamID, err := extractTeamId(ctx, match.ScoreAway.Links)
 	if err != nil {
-		slog.Error("Error extracting away team ID", tint.Err(err))
+		slog.ErrorContext(ctx, "Error extracting away team ID", tint.Err(err))
 		_ = span.Error(ctx, err)
 
 		w.WriteHeader(http.StatusInternalServerError)
@@ -67,7 +67,7 @@ func (s *Bets) Create(w http.ResponseWriter, r *http.Request) {
 
 	homeTeamRes, err := s.findTeam(ctx, homeTeamID)
 	if err != nil {
-		slog.Error("Error fetching home team details", tint.Err(err))
+		slog.ErrorContext(ctx, "Error fetching home team details", tint.Err(err))
 		_ = span.Error(ctx, err)
 
 		w.WriteHeader(http.StatusServiceUnavailable)
@@ -77,7 +77,7 @@ func (s *Bets) Create(w http.ResponseWriter, r *http.Request) {
 
 	awayTeamRes, err := s.findTeam(ctx, awayTeamID)
 	if err != nil {
-		slog.Error("Error fetching away team details", tint.Err(err))
+		slog.ErrorContext(ctx, "Error fetching away team details", tint.Err(err))
 		_ = span.Error(ctx, err)
 
 		w.WriteHeader(http.StatusServiceUnavailable)
@@ -87,7 +87,7 @@ func (s *Bets) Create(w http.ResponseWriter, r *http.Request) {
 
 	matchID, err := extractMatchId(ctx, match.Links)
 	if err != nil {
-		slog.Error("Error extracting match ID", tint.Err(err))
+		slog.ErrorContext(ctx, "Error extracting match ID", tint.Err(err))
 		_ = span.Error(ctx, err)
 
 		w.WriteHeader(http.StatusInternalServerError)
@@ -97,7 +97,7 @@ func (s *Bets) Create(w http.ResponseWriter, r *http.Request) {
 
 	championshipRes, err := s.findMatch(ctx, matchID)
 	if err != nil {
-		slog.Error("Error fetching championship details", tint.Err(err))
+		slog.ErrorContext(ctx, "Error fetching championship details", tint.Err(err))
 		_ = span.Error(ctx, err)
 
 		w.WriteHeader(http.StatusInternalServerError)
@@ -106,7 +106,7 @@ func (s *Bets) Create(w http.ResponseWriter, r *http.Request) {
 	}
 
 	span.Event(ctx, "Data retrieval successful")
-	slog.Info("Data retrieval successful, creating response")
+	slog.InfoContext(ctx, "Data retrieval successful, creating response")
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)

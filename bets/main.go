@@ -26,11 +26,11 @@ import (
 )
 
 func init() {
-	logger := slog.New(tint.NewHandler(os.Stderr, &tint.Options{
+	logger := slog.New(otel.NewLogHandler(tint.NewHandler(os.Stderr, &tint.Options{
 		AddSource:  true,
 		Level:      slog.LevelDebug,
 		TimeFormat: time.Kitchen,
-	}))
+	})))
 	slog.SetDefault(logger)
 }
 
@@ -41,23 +41,23 @@ func main() {
 	defer shutdown()
 
 	if err != nil {
-		slog.Error("Error starting OpenTelemetry providers", tint.Err(err))
+		slog.ErrorContext(ctx, "Error starting OpenTelemetry providers", tint.Err(err))
 		return
 	}
 
-	slog.Info("Starting application...")
+	slog.InfoContext(ctx, "Starting application...")
 
 	httpClient := httpclient.New()
 
 	matchesClient, err := matches.NewClientWithHTTPClient(httpClient)
 	if err != nil {
-		slog.Error("Error creating matches client", tint.Err(err))
+		slog.ErrorContext(ctx, "Error creating matches client", tint.Err(err))
 		return
 	}
 
 	teamsClient, err := teams.NewClientWithHTTPClient(httpClient)
 	if err != nil {
-		slog.Error("Error creating teams client", tint.Err(err))
+		slog.ErrorContext(ctx, "Error creating teams client", tint.Err(err))
 		return
 	}
 
@@ -71,15 +71,15 @@ func main() {
 	)
 
 	addr := ":8081"
-	slog.Info("Starting server", slog.String("addr", addr))
+	slog.InfoContext(ctx, "Starting server", slog.String("addr", addr))
 
 	if err = (&http.Server{
 		Addr:    addr,
 		Handler: h,
 	}).ListenAndServe(); err != nil {
-		slog.Error("Error starting HTTP server", tint.Err(err))
+		slog.ErrorContext(ctx, "Error starting HTTP server", tint.Err(err))
 		return
 	}
 
-	slog.Info("Application stopped")
+	slog.InfoContext(ctx, "Application stopped")
 }
