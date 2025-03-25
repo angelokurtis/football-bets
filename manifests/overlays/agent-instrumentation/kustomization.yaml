@@ -16,8 +16,6 @@ patches:
     - op: add
       path: /spec/template/spec/containers/0/env
       value:
-        - name: LOGGING_PATTERN_LEVEL
-          value: "trace_id=%mdc{trace_id} span_id=%mdc{span_id} %5p"
         - name: JAVA_TOOL_OPTIONS
           value: "-javaagent:opentelemetry-javaagent.jar -Dotel.javaagent.debug=true"
         - name: OTEL_SERVICE_NAME
@@ -25,17 +23,11 @@ patches:
             fieldRef:
               fieldPath: metadata.labels['app']
         - name: OTEL_TRACES_EXPORTER
-          value: otlp
+          value: none
         - name: OTEL_METRICS_EXPORTER
-          value: otlp
+          value: prometheus
         - name: OTEL_LOGS_EXPORTER
           value: none
-        - name: OTEL_EXPORTER_OTLP_TRACES_ENDPOINT
-          value: http://traces.opentelemetry:4317
-        - name: OTEL_EXPORTER_OTLP_METRICS_ENDPOINT
-          value: http://metrics.opentelemetry:4317
-        - name: OTEL_METRIC_EXPORT_INTERVAL
-          value: "30000"
     - op: add
       path: /spec/replicas
       value: 3
@@ -47,6 +39,12 @@ patches:
               memory: 512Mi
           limits:
               memory: 512Mi
+    - op: add
+      path: /spec/template/spec/containers/0/ports/-
+      value:
+        containerPort: 9464
+        name: prometheus
+        protocol: TCP
     - op: add
       path: /spec/template/spec/containers/0/livenessProbe/initialDelaySeconds
       value: 60
