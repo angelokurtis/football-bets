@@ -3,9 +3,13 @@ kind: Kustomization
 resources:
   - ../../base
   - bets-metrics.service.yaml
+  - bets-monitor.service-monitor.yaml
   - championships-metrics.service.yaml
+  - championships-monitor.service-monitor.yaml
   - matches-metrics.service.yaml
+  - matches-monitor.service-monitor.yaml
   - teams-metrics.service.yaml
+  - teams-monitor.service-monitor.yaml
 images:
   - name: kurtis/bets
     newTag: 1.0.0-java-spring-otel-1.19.2
