@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: championships-metrics
+  labels:
+    app: championships
+spec:
+  selector:
+    app: championships
+  ports:
+    - name: metrics
+      port: 9464
+      targetPort: 9464

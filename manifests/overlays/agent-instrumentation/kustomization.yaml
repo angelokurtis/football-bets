@@ -1,54 +1,58 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
-- ../../base
+  - ../../base
+  - bets-metrics.service.yaml
+  - championships-metrics.service.yaml
+  - matches-metrics.service.yaml
+  - teams-metrics.service.yaml
 images:
-- name: kurtis/bets
-  newTag: 1.0.0-java-spring-otel-1.19.2
-- name: kurtis/championships
-  newTag: 1.0.0-java-spring-otel-1.19.2
-- name: kurtis/matches
-  newTag: 1.0.0-java-spring-otel-1.19.2
-- name: kurtis/teams
-  newTag: 1.0.0-java-spring-otel-1.19.2
+  - name: kurtis/bets
+    newTag: 1.0.0-java-spring-otel-1.19.2
+  - name: kurtis/championships
+    newTag: 1.0.0-java-spring-otel-1.19.2
+  - name: kurtis/matches
+    newTag: 1.0.0-java-spring-otel-1.19.2
+  - name: kurtis/teams
+    newTag: 1.0.0-java-spring-otel-1.19.2
 patches:
-- patch: |
-    - op: add
-      path: /spec/template/spec/containers/0/env
-      value:
-        - name: JAVA_TOOL_OPTIONS
-          value: "-javaagent:opentelemetry-javaagent.jar -Dotel.javaagent.debug=true"
-        - name: OTEL_SERVICE_NAME
-          valueFrom:
-            fieldRef:
-              fieldPath: metadata.labels['app']
-        - name: OTEL_TRACES_EXPORTER
-          value: none
-        - name: OTEL_METRICS_EXPORTER
-          value: prometheus
-        - name: OTEL_LOGS_EXPORTER
-          value: none
-    - op: add
-      path: /spec/replicas
-      value: 3
-    - op: add
-      path: /spec/template/spec/containers/0/resources
-      value:
+  - patch: |
+      - op: add
+        path: /spec/template/spec/containers/0/env
+        value:
+          - name: JAVA_TOOL_OPTIONS
+            value: "-javaagent:opentelemetry-javaagent.jar -Dotel.javaagent.debug=true"
+          - name: OTEL_SERVICE_NAME
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.labels['app']
+          - name: OTEL_TRACES_EXPORTER
+            value: none
+          - name: OTEL_METRICS_EXPORTER
+            value: prometheus
+          - name: OTEL_LOGS_EXPORTER
+            value: none
+      - op: add
+        path: /spec/replicas
+        value: 3
+      - op: add
+        path: /spec/template/spec/containers/0/resources
+        value:
           requests:
-              cpu: 500m
-              memory: 512Mi
+            cpu: 500m
+            memory: 512Mi
           limits:
-              memory: 512Mi
-    - op: add
-      path: /spec/template/spec/containers/0/ports/-
-      value:
-        containerPort: 9464
-        name: prometheus
-        protocol: TCP
-    - op: add
-      path: /spec/template/spec/containers/0/livenessProbe/initialDelaySeconds
-      value: 60
-  target:
-    kind: Deployment
-    name: .*
-    version: .*
+            memory: 512Mi
+      - op: add
+        path: /spec/template/spec/containers/0/ports/-
+        value:
+          containerPort: 9464
+          name: prometheus
+          protocol: TCP
+      - op: add
+        path: /spec/template/spec/containers/0/livenessProbe/initialDelaySeconds
+        value: 60
+    target:
+      kind: Deployment
+      name: .*
+      version: .*
