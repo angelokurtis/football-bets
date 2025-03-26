@@ -37,9 +37,6 @@ patches:
           - name: OTEL_LOGS_EXPORTER
             value: none
       - op: add
-        path: /spec/replicas
-        value: 3
-      - op: add
         path: /spec/template/spec/containers/0/resources
         value:
           requests:
